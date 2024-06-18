@@ -1,5 +1,5 @@
 import { Command, OptionValues } from 'commander'
-import { signRewards, signUptimeVote } from './sign'
+import { getRewardsData, getUptimeVoteHash, signRewards, signUptimeVote } from './sign'
 import { prompts } from "./prompts";
 
 export async function cli(program: Command) {
@@ -8,7 +8,8 @@ export async function cli(program: Command) {
         .option("-r, --reward-epoch-id <rewardEpochId>", "Reward epoch id")
         .action(async (options: OptionValues) => {
             let rewardEpochId = Number(options.rewardEpochId);
-            const shouldContinue = await prompts.continueUptimeVote(rewardEpochId);
+            let uptimeVoteHash = await getUptimeVoteHash();
+            const shouldContinue = await prompts.continueUptimeVote(rewardEpochId, uptimeVoteHash);
             if (shouldContinue.continueUptimeVote) {
                 await signUptimeVote(rewardEpochId);
             }
@@ -18,7 +19,8 @@ export async function cli(program: Command) {
         .option("-r, --reward-epoch-id <rewardEpochId>", "Reward epoch id")
         .action(async (options: OptionValues) => {
             let rewardEpochId = Number(options.rewardEpochId);
-            const shouldContinue = await prompts.continueRewards(rewardEpochId);
+            let [rewardsHash, noOfWeightBasedClaims] = await getRewardsData(rewardEpochId);
+            const shouldContinue = await prompts.continueRewards(rewardEpochId, rewardsHash, noOfWeightBasedClaims);
             if (shouldContinue.continueRewards) {
                 await signRewards(rewardEpochId);
             }

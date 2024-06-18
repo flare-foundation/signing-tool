@@ -5,11 +5,11 @@ import inquirer from 'inquirer';
  * Provides various prompts used in the CLI for user interaction.
  */
 export const prompts = {
-  continueUptimeVote: async (rewardEpochId: number) => {
+  continueUptimeVote: async (rewardEpochId: number, hash: string) => {
     const questions = [{
       type: 'list',
       name: 'continueUptimeVote',
-      message: chalk.magenta(`Do you want to sing uptime vote for reward epoch ${rewardEpochId}?`),
+      message: chalk.magenta(`Signing uptime vote for reward epoch: ${rewardEpochId} and Merkle root: ${hash} (default hash of zero). \nDo you want to proceed?`),
       choices: [
         "Yes",
         "No"
@@ -20,11 +20,11 @@ export const prompts = {
     }];
     return inquirer.prompt(questions);
   },
-  continueRewards: async (rewardEpochId: number) => {
+  continueRewards: async (rewardEpochId: number, hash: string, noOfWeightBasedClaims: number) => {
     const questions = [{
       type: 'list',
       name: 'continueRewards',
-      message: chalk.magenta(`Do you want to sing rewards Merkle root for reward epoch ${rewardEpochId}?`),
+      message: chalk.magenta(`Signing rewards for reward epoch: ${rewardEpochId}, Merkle root: ${hash} and number of weight based claims: ${noOfWeightBasedClaims}. \nDo you want to proceed?`),
       choices: [
         "Yes",
         "No"

@@ -1,5 +1,6 @@
 import Web3 from "web3";
 import { ECDSASignature } from "../lib/ECDSASignature";
+import { IRewardDistributionData } from "../lib/interfaces";
 import { CONTRACTS, RPC, ZERO_BYTES32 } from "../configs/networks";
 import { readFileSync } from "fs";
 import axios from 'axios';
@@ -12,6 +13,19 @@ const web3 = new Web3(RPC);
 
 const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
 const flareSystemsManager = new web3.eth.Contract(flareSystemsManagerAbi, CONTRACTS.FlareSystemsManager.address);
+
+export async function getUptimeVoteHash(): Promise<string> {
+  // fake vote hash
+  return web3.utils.keccak256(ZERO_BYTES32);
+}
+
+export async function getRewardsData(rewardEpochId: number): Promise<[string, number]> {
+  const response = await axios.get(`https://gitlab.com/timivesel/test/-/raw/main/calculations/${rewardEpochId}/reward-distribution-data.json`);
+  const data: IRewardDistributionData = response.data;
+  const rewardsHash: string = data.merkleRoot;
+  const noOfWeightBasedClaims: number = data.noOfWeightBasedClaims;
+  return [rewardsHash, noOfWeightBasedClaims];
+}
 
 export async function signUptimeVote(rewardEpochId: number) {
 
@@ -67,10 +81,7 @@ export async function signRewards(
     const wallet = web3.eth.accounts.privateKeyToAccount(senderPrivateKey);
     console.log(`Sending merkle root for epoch ${rewardEpochId} from ${wallet.address}`);
 
-    const response = await axios.get(`https://gitlab.com/timivesel/test/-/raw/main/rewards/epoch-${rewardEpochId}.json`);
-    const data = response.data;
-    const rewardsHash: string = data.rewardsHash;
-    const noOfWeightBasedClaims: number = data.noOfWeightBasedClaims;
+    const [rewardsHash, noOfWeightBasedClaims] = await getRewardsData(rewardEpochId);
 
     const rewardManagerId = await web3.eth.getChainId();
     const noOfWeightBasedClaimsAndId = [[rewardManagerId, noOfWeightBasedClaims]];
