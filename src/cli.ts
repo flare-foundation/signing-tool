@@ -11,7 +11,7 @@ export async function cli(program: Command) {
             let uptimeVoteHash = await getUptimeVoteHash();
             const shouldContinue = await prompts.continueUptimeVote(rewardEpochId, uptimeVoteHash);
             if (shouldContinue.continueUptimeVote) {
-                await signUptimeVote(rewardEpochId);
+                await signUptimeVote(rewardEpochId, uptimeVoteHash);
             }
         })
     program
@@ -22,7 +22,7 @@ export async function cli(program: Command) {
             let [rewardsHash, noOfWeightBasedClaims] = await getRewardsData(rewardEpochId);
             const shouldContinue = await prompts.continueRewards(rewardEpochId, rewardsHash, noOfWeightBasedClaims);
             if (shouldContinue.continueRewards) {
-                await signRewards(rewardEpochId);
+                await signRewards(rewardEpochId, rewardsHash, noOfWeightBasedClaims);
             }
         })
 }

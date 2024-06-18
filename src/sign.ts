@@ -27,7 +27,7 @@ export async function getRewardsData(rewardEpochId: number): Promise<[string, nu
   return [rewardsHash, noOfWeightBasedClaims];
 }
 
-export async function signUptimeVote(rewardEpochId: number) {
+export async function signUptimeVote(rewardEpochId: number, fakeVoteHash: string) {
 
     if (!process.env.PRIVATE_KEY || !process.env.SIGNING_POLICY_PRIVATE_KEY) {
         throw new Error(
@@ -40,7 +40,6 @@ export async function signUptimeVote(rewardEpochId: number) {
     const wallet = web3.eth.accounts.privateKeyToAccount(senderPrivateKey);
     console.log(`Sending uptime vote for epoch ${rewardEpochId} from ${wallet.address}`);
 
-    const fakeVoteHash = web3.utils.keccak256(ZERO_BYTES32);
     const message = "0x" + rewardEpochId.toString(16).padStart(64, "0") + fakeVoteHash.slice(2);
     const messageHash = web3.utils.keccak256(message);
     const signature = await ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
@@ -67,9 +66,7 @@ export async function signUptimeVote(rewardEpochId: number) {
     }
 }
 
-export async function signRewards(
-    rewardEpochId: number,
-  ) {
+export async function signRewards(rewardEpochId: number, rewardsHash: string, noOfWeightBasedClaims: number) {
     if (!process.env.PRIVATE_KEY || !process.env.SIGNING_POLICY_PRIVATE_KEY) {
         throw new Error(
           "PRIVATE_KEY and SIGNING_POLICY_PRIVATE_KEY env variables are required."
@@ -80,8 +77,6 @@ export async function signRewards(
 
     const wallet = web3.eth.accounts.privateKeyToAccount(senderPrivateKey);
     console.log(`Sending merkle root for epoch ${rewardEpochId} from ${wallet.address}`);
-
-    const [rewardsHash, noOfWeightBasedClaims] = await getRewardsData(rewardEpochId);
 
     const rewardManagerId = await web3.eth.getChainId();
     const noOfWeightBasedClaimsAndId = [[rewardManagerId, noOfWeightBasedClaims]];
