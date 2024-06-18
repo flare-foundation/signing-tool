@@ -1,7 +1,7 @@
 {
   "name": "signing-tool",
   "version": "1.0.0",
-  "description": "Uptime and rewards hash signing tool",
+  "description": "Uptime and rewards signing tool",
   "license": "MIT",
   "bin": {
     "signing-tool": "bin/signing-tool"
