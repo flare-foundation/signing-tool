@@ -16,7 +16,7 @@ const SONGBIRD_CONFIG: NetworkContractAddresses = {
 };
 
 const FLARE_CONFIG: NetworkContractAddresses = {
-  FlareSystemsManager: { name: "FlareSystemsManager", address: "0x421c69E22f48e14Fc2d2Ee3812c59bfb81c38516" }
+  FlareSystemsManager: { name: "FlareSystemsManager", address: "" }
 };
 
 const COSTON_RPC = "https://coston-api.flare.network/ext/bc/C/rpc";

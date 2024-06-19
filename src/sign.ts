@@ -22,7 +22,7 @@ export async function getRewardCalculationDataPath(rewardEpochId: number) {
     case "coston":
       return `https://gitlab.com/timivesel/test/-/raw/main/rewards-data/coston/${rewardEpochId}/reward-distribution-data.json`;
     case "songbird":
-      return ``;
+      return `https://raw.githubusercontent.com/flare-foundation/FTSO-scaling/main/rewards-data/coston/${rewardEpochId}/reward-distribution-data.json`;
     case "flare":
       return ``;
     default:
