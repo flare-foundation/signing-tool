@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import { ECDSASignature } from "../lib/ECDSASignature";
 import { IRewardDistributionData } from "../lib/interfaces";
-import { CONTRACTS, RPC, ZERO_BYTES32 } from "../configs/networks";
+import { CONTRACTS, RPC, ZERO_BYTES32, networks } from "../configs/networks";
 import { readFileSync } from "fs";
 import axios from 'axios';
 import * as dotenv from "dotenv";
@@ -19,8 +19,25 @@ export async function getUptimeVoteHash(): Promise<string> {
   return web3.utils.keccak256(ZERO_BYTES32);
 }
 
+export async function getRewardCalculationDataPath(rewardEpochId: number) {
+  const network = process.env.NETWORK as networks;
+    switch (network) {
+      case "coston2":
+        return ``;
+      case "coston":
+        return `https://gitlab.com/timivesel/test/-/raw/main/rewards-data/coston/${rewardEpochId}/reward-distribution-data.json`;
+      case "songbird":
+        return `SONGBIRD_CONFIG`;
+      case "flare":
+        return `FLARE_CONFIG`;
+      default:
+        ((_: never): void => { })(network);
+    }
+}
+
 export async function getRewardsData(rewardEpochId: number): Promise<[string, number]> {
-  const response = await axios.get(`https://gitlab.com/timivesel/test/-/raw/main/calculations/${rewardEpochId}/reward-distribution-data.json`);
+  const path = await getRewardCalculationDataPath(rewardEpochId) as any;
+  const response = await axios.get(path);
   const data: IRewardDistributionData = response.data;
   const rewardsHash: string = data.merkleRoot;
   const noOfWeightBasedClaims: number = data.noOfWeightBasedClaims;
@@ -115,6 +132,3 @@ export async function signRewards(rewardEpochId: number, rewardsHash: string, no
         console.dir(e);
     }
   }
-
-// sendUptimeVote(2775);
-// signRewards(2772);
