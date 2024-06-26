@@ -9,7 +9,6 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const web3 = new Web3(RPC);
-// console.log(`Connected to ${RPC}`);
 
 const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
 const flareSystemsManager = new web3.eth.Contract(flareSystemsManagerAbi, CONTRACTS.FlareSystemsManager.address);
@@ -20,7 +19,7 @@ export async function getRewardCalculationDataPath(rewardEpochId: number) {
     case "coston2":
       return ``;
     case "coston":
-      return `https://gitlab.com/timivesel/ftsov2-testnet-rewards/-/raw/main/rewards-data/coston//${rewardEpochId}/reward-distribution-data.json`;
+      return `https://gitlab.com/timivesel/ftsov2-testnet-rewards/-/raw/main/rewards-data/coston/${rewardEpochId}/reward-distribution-data.json`;
     case "songbird":
       return `https://raw.githubusercontent.com/flare-foundation/FTSO-scaling/main/rewards-data/songbird/${rewardEpochId}/reward-distribution-data.json`;
     case "flare":
