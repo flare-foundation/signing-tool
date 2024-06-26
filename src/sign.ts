@@ -8,15 +8,6 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-if (RPC === undefined) {
-  throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
-}
-
-const web3 = new Web3(RPC);
-
-const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
-const flareSystemsManager = new web3.eth.Contract(flareSystemsManagerAbi, CONTRACTS.FlareSystemsManager.address);
-
 export async function getRewardCalculationDataPath(rewardEpochId: number) {
   const network = process.env.NETWORK as networks;
   switch (network) {
@@ -34,12 +25,19 @@ export async function getRewardCalculationDataPath(rewardEpochId: number) {
 }
 
 export async function getUptimeVoteHash(): Promise<string> {
+  if (RPC === undefined) {
+    throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
+  }
+  const web3 = new Web3(RPC);
   // fake vote hash
   return web3.utils.keccak256(ZERO_BYTES32);
 }
 
 export async function getRewardsData(rewardEpochId: number): Promise<[string, number]> {
   const path = await getRewardCalculationDataPath(rewardEpochId) as any;
+  if (path === undefined) {
+    throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
+  }
   const response = await axios.get(path);
   const data: IRewardDistributionData = response.data;
   const rewardsHash: string = data.merkleRoot;
@@ -48,6 +46,13 @@ export async function getRewardsData(rewardEpochId: number): Promise<[string, nu
 }
 
 export async function signUptimeVote(rewardEpochId: number, fakeVoteHash: string) {
+  if (RPC === undefined) {
+    throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
+  }
+  const web3 = new Web3(RPC);
+
+  const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
+  const flareSystemsManager = new web3.eth.Contract(flareSystemsManagerAbi, CONTRACTS.FlareSystemsManager.address);
 
   if (!process.env.PRIVATE_KEY || !process.env.SIGNING_POLICY_PRIVATE_KEY) {
     throw new Error(
@@ -91,6 +96,14 @@ export async function signUptimeVote(rewardEpochId: number, fakeVoteHash: string
 }
 
 export async function signRewards(rewardEpochId: number, rewardsHash: string, noOfWeightBasedClaims: number) {
+  if (RPC === undefined) {
+    throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
+  }
+  const web3 = new Web3(RPC);
+
+  const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
+  const flareSystemsManager = new web3.eth.Contract(flareSystemsManagerAbi, CONTRACTS.FlareSystemsManager.address);
+
   if (!process.env.PRIVATE_KEY || !process.env.SIGNING_POLICY_PRIVATE_KEY) {
     throw new Error(
       "PRIVATE_KEY and SIGNING_POLICY_PRIVATE_KEY env variables are required."
@@ -100,7 +113,7 @@ export async function signRewards(rewardEpochId: number, rewardsHash: string, no
   const senderPrivateKey = process.env.PRIVATE_KEY;
 
   const wallet = web3.eth.accounts.privateKeyToAccount(senderPrivateKey);
-  console.log(`Sending merkle root for epoch ${rewardEpochId} from ${wallet.address}`);
+  console.log(`Sending Merkle root for epoch ${rewardEpochId} from ${wallet.address}`);
 
   const rewardManagerId = await web3.eth.getChainId();
   const noOfWeightBasedClaimsAndId = [[rewardManagerId, noOfWeightBasedClaims]];

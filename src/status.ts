@@ -5,16 +5,16 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-if (!RPC) {
-    throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
-}
-
-const web3 = new Web3(RPC);
-
-const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
-const flareSystemsManager = new web3.eth.Contract(flareSystemsManagerAbi, CONTRACTS.FlareSystemsManager.address);
-
 export async function getStatus(rewardEpochId: number) {
+
+    if (!RPC) {
+        throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
+    }
+
+    const web3 = new Web3(RPC);
+
+    const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
+    const flareSystemsManager = new web3.eth.Contract(flareSystemsManagerAbi, CONTRACTS.FlareSystemsManager.address);
 
     const currentRewardEpochId: number = Number(await flareSystemsManager.methods.getCurrentRewardEpochId().call());
     let endRewardEpochId: number;
