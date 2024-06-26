@@ -20,9 +20,9 @@ export async function getRewardCalculationDataPath(rewardEpochId: number) {
     case "coston2":
       return ``;
     case "coston":
-      return `https://gitlab.com/timivesel/test/-/raw/main/rewards-data/coston/${rewardEpochId}/reward-distribution-data.json`;
+      return `https://gitlab.com/timivesel/ftsov2-testnet-rewards/-/raw/main/rewards-data/coston//${rewardEpochId}/reward-distribution-data.json`;
     case "songbird":
-      return `https://raw.githubusercontent.com/flare-foundation/FTSO-scaling/main/rewards-data/coston/${rewardEpochId}/reward-distribution-data.json`;
+      return `https://raw.githubusercontent.com/flare-foundation/FTSO-scaling/main/rewards-data/songbird/${rewardEpochId}/reward-distribution-data.json`;
     case "flare":
       return ``;
     default:
