@@ -8,6 +8,10 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
+if (RPC === undefined) {
+  throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
+}
+
 const web3 = new Web3(RPC);
 
 const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
