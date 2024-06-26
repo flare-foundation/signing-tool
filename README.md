@@ -9,6 +9,12 @@ Create an environment file (`.env`) with the following content (see `.env.exampl
 - Optionally one can set custom RPC endpoints for each network that will override the public ones (e.g. for Flare network one should set FLARE_RPC=<private_rpc>)
 
 ## Build the tool
+- Clone the repo.
+- Install dependencies:
+```bash
+yarn
+```
+- Build the tool:
 ```bash
 yarn build
 ```
