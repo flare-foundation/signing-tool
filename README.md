@@ -6,7 +6,11 @@ Create an environment file (`.env`) with the following content (see `.env.exampl
 - SIGNING_POLICY_PRIVATE_KEY - Private key of the signing policy address
 - NETWORK - Network on which to sign (flare/songbird/coston/coston2)
 - PRIVATE_KEY - Private key of the address that will send transactions (can be the same as the signing policy key but this is not recommended to avoid nonce conflict with other transactions, mainly relaying transactions).
-- Optionally one can set custom RPC endpoints for each network that will override the public ones (e.g. for Flare network one should set FLARE_RPC=<private_rpc>)
+- Optionally one can set custom RPC endpoints for each network that will override the public ones:
+  - FLARE_RPC
+  - SONGBIRD_RPC
+  - COSTON_RPC
+  - COSTON2_RPC
 
 ## Build the tool
 - Clone the repo.
