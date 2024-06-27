@@ -1,6 +1,6 @@
 # Signing tool
 
-Tool for signing uptime vote and rewards in FTSO V2 protocol. 
+Tool for signing uptime vote and rewards in FTSO V2 protocol.
 
 ##  Config file
 NOTE: Ensure that you work in a secure environment (server).
@@ -26,7 +26,7 @@ yarn build
 
 ## Signing uptime vote
 
-Signs hash-of-zero Merkle root and sends it as a vote for uptime voting to `FlareSystemsManager`. 
+Signs hash-of-zero Merkle root and sends it as a vote for uptime voting to `FlareSystemsManager`.
 
 ```bash
 bin/signing-tool uptime --reward-epoch-id <reward_epoch_id>
@@ -34,7 +34,7 @@ bin/signing-tool uptime --reward-epoch-id <reward_epoch_id>
 
 ## Signing rewards
 
-Fetches the reward distribution data form [reward calculation results](https://github.com/flare-foundation/FTSO-Scaling/tree/main/rewards-data). It prints out the data and once confirmed is signs them with `SIGNING_POLICY_PRIVATE_KEY` and sends them to `FlareSystemsManager` smart contract.
+Fetches the reward distribution data from [reward calculation results](https://github.com/flare-foundation/FTSO-Scaling/tree/main/rewards-data). It prints out the data and once confirmed it signs them with `SIGNING_POLICY_PRIVATE_KEY` and sends them to `FlareSystemsManager` smart contract.
 
 ```bash
 bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>
@@ -42,7 +42,7 @@ bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>
 
 ## Signing status check
 
-Checks the signing status for both uptime vote and reward 
+Checks the signing status for both uptime vote and reward
 ```bash
 bin/signing-tool status --reward-epoch-id <reward_epoch_id>
 ```
@@ -50,7 +50,7 @@ bin/signing-tool status --reward-epoch-id <reward_epoch_id>
 ## Technical details
 
 The tool communicates with [`FlareSystemsManager`](https://gitlab.com/flarenetwork/flare-smart-contracts-v2/-/blob/main/contracts/protocol/implementation/FlareSystemsManager.sol?ref_type=heads) smart contract that handles the steps in the Flare Systems Protocol.
-The part of the protocol immediately after the end of each reward epoch includes voting for uptime and voting for rewards by data providers that held voting weight in the reward epoch. 
+The part of the protocol immediately after the end of each reward epoch includes voting for uptime and voting for rewards by data providers that held voting weight in the reward epoch.
 
 The tool handles two actions:
 - signing and sending Merkle root for up time voting,
