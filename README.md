@@ -1,16 +1,17 @@
 # Signing tool
-Tool for signing uptime vote and rewards in FTSO V2 protocol.
+
+Tool for signing uptime vote and rewards in FTSO V2 protocol. 
 
 ##  Config file
+NOTE: Ensure that you work in a secure environment (server).
+
 Create an environment file (`.env`) with the following content (see `.env.example`):
-- SIGNING_POLICY_PRIVATE_KEY - Private key of the signing policy address
-- NETWORK - Network on which to sign (flare/songbird/coston/coston2)
-- PRIVATE_KEY - Private key of the address that will send transactions (can be the same as the signing policy key but this is not recommended to avoid nonce conflict with other transactions, mainly relaying transactions).
-- Optionally one can set custom RPC endpoints for each network that will override the public ones:
-  - FLARE_RPC
-  - SONGBIRD_RPC
-  - COSTON_RPC
-  - COSTON2_RPC
+- `SIGNING_POLICY_PRIVATE_KEY` - Private key of the signing policy address.
+- `NETWORK` - Network on which to sign (`flare`, `songbird`, `coston`, `coston2`).
+- `PRIVATE_KEY` - Private key of the address that will be used to send transactions (recommended not to be the same as `SIGNING_POLICY_PRIVATE_KEY` to avoid nonce issues since the signing policy address is used for finalizations by [Flare Systems Client](https://github.com/flare-foundation/flare-system-client)).
+- Optionally one can set custom RPC endpoints for each network that will override the public ones (e.g. for Flare network one should set `FLARE_RPC=<private_rpc>`, for others use `SONGBIRD_RPC`, `COSTON_RPC`, `COSTON2_RPC`).
+
+A data provider is encouraged to use more advanced approaches like cloud key management tools to initialize specific environment variables more securely.
 
 ## Build the tool
 - Clone the repo.
@@ -27,9 +28,31 @@ yarn build
 ```bash
 bin/signing-tool uptime --reward-epoch-id <reward_epoch_id>
 ```
+Signs hash-of-zero Merkle root and sends it as a vote for uptime voting to `FlareSystemsManager`. 
 
 ## Signing rewards
 ```bash
 bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>
 ```
+The signing tool fetches data form [reward calculation results](https://github.com/flare-foundation/FTSO-Scaling/tree/main/rewards-data). It prints out the data and once confirmed is signs them with `SIGNING_POLICY_PRIVATE_KEY` and sends them to `FlareSystemsManager` smart contract.
+
+## Technical details
+
+The tool communicates with [`FlareSystemsManager`](https://gitlab.com/flarenetwork/flare-smart-contracts-v2/-/blob/main/contracts/protocol/implementation/FlareSystemsManager.sol?ref_type=heads) smart contract that handles the steps in the Flare Systems Protocol.
+The part of the protocol immediately after the end of each reward epoch includes voting for uptime and voting for rewards by data providers that held voting weight in the reward epoch. 
+
+The tool handles two actions:
+- signing and sending Merkle root for up time voting,
+- signing and sending Merkle root for the reward distribution.
+
+Note that signing and sending constitute voting for the signed Merkle root with the signers weight. The vote is concluded once 50%+ of the weight votes for the same Merkle root.
+
+### Uptime voting
+
+In current deployments uptime voting is not fully supported and used. But since Flare Systems Protocol requires concluded uptime voting in order to start reward distribution voting the data providers have to sign Merkle root which is the hash (sha256). The method [`signUptimeVote`](https://gitlab.com/flarenetwork/flare-smart-contracts-v2/-/blob/main/contracts/protocol/implementation/FlareSystemsManager.sol?ref_type=heads#L460) on `FlareSystemsManager` smart contract is used.
+
+### Reward distribution voting
+
+Currently Flare calculates rewards using the [reward calculation algorithm](https://github.com/flare-foundation/FTSO-Scaling/blob/main/scripts/rewards/README.md) and publishes the [results](https://github.com/flare-foundation/FTSO-Scaling/tree/main/rewards-data). If data providers agree on those results they can sign them using the Signing tool as described above. The method [signRewards](https://github.com/flare-foundation/flare-smart-contracts-v2/blob/main/contracts/protocol/implementation/FlareSystemsManager.sol#L504) is used on `FlareSystemsManager` smart contract.
+
 
