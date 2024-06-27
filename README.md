@@ -25,16 +25,27 @@ yarn build
 ```
 
 ## Signing uptime vote
+
+Signs hash-of-zero Merkle root and sends it as a vote for uptime voting to `FlareSystemsManager`. 
+
 ```bash
 bin/signing-tool uptime --reward-epoch-id <reward_epoch_id>
 ```
-Signs hash-of-zero Merkle root and sends it as a vote for uptime voting to `FlareSystemsManager`. 
 
 ## Signing rewards
+
+Fetches the reward distribution data form [reward calculation results](https://github.com/flare-foundation/FTSO-Scaling/tree/main/rewards-data). It prints out the data and once confirmed is signs them with `SIGNING_POLICY_PRIVATE_KEY` and sends them to `FlareSystemsManager` smart contract.
+
 ```bash
 bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>
 ```
-The signing tool fetches data form [reward calculation results](https://github.com/flare-foundation/FTSO-Scaling/tree/main/rewards-data). It prints out the data and once confirmed is signs them with `SIGNING_POLICY_PRIVATE_KEY` and sends them to `FlareSystemsManager` smart contract.
+
+## Signing status check
+
+Checks the signing status for both uptime vote and reward 
+```bash
+bin/signing-tool status --reward-epoch-id <reward_epoch_id>
+```
 
 ## Technical details
 
