@@ -6,3 +6,9 @@ coverage
 .nyc_output
 
 .DS_Store
+
+typechain
+typechain-truffle
+typechain-web3
+
+cache

@@ -13,6 +13,8 @@
   "include": [
     "src/**/*",
     "./typechain-web3-v1",
-    "publisher.ts"
+     "lib/ECDSASignature.ts",
+     "lib/interfaces.ts",
+     "lib/initialize.ts"
   ]
 }

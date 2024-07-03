@@ -1,10 +1,10 @@
 import Web3 from "web3";
 import { ECDSASignature } from "../lib/ECDSASignature";
 import { IRewardDistributionData } from "../lib/interfaces";
-import { CONTRACTS, RPC, ZERO_BYTES32, networks } from "../configs/networks";
-import { readFileSync } from "fs";
+import { ZERO_BYTES32, networks } from "../configs/networks";
 import axios from 'axios';
 import * as dotenv from "dotenv";
+import { initializeFlareSystemsManager } from "../lib/initialize";
 
 dotenv.config();
 
@@ -12,23 +12,19 @@ export async function getRewardCalculationDataPath(rewardEpochId: number) {
   const network = process.env.NETWORK as networks;
   switch (network) {
     case "coston2":
-      return ``;
+      return `https://gitlab.com/timivesel/ftsov2-testnet-rewards/-/raw/main/rewards-data/coston2/${rewardEpochId}/reward-distribution-data.json`;
     case "coston":
       return `https://gitlab.com/timivesel/ftsov2-testnet-rewards/-/raw/main/rewards-data/coston/${rewardEpochId}/reward-distribution-data.json`;
     case "songbird":
       return `https://raw.githubusercontent.com/flare-foundation/FTSO-scaling/main/rewards-data/songbird/${rewardEpochId}/reward-distribution-data.json`;
     case "flare":
-      return ``;
+      return `https://raw.githubusercontent.com/flare-foundation/FTSO-scaling/main/rewards-data/flare/${rewardEpochId}/reward-distribution-data.json`;
     default:
       ((_: never): void => { })(network);
   }
 }
 
-export async function getUptimeVoteHash(): Promise<string> {
-  if (RPC === undefined) {
-    throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
-  }
-  const web3 = new Web3(RPC);
+export async function getUptimeVoteHash(web3: Web3): Promise<string> {
   // fake vote hash
   return web3.utils.keccak256(ZERO_BYTES32);
 }
@@ -45,14 +41,7 @@ export async function getRewardsData(rewardEpochId: number): Promise<[string, nu
   return [rewardsHash, noOfWeightBasedClaims];
 }
 
-export async function signUptimeVote(rewardEpochId: number, fakeVoteHash: string) {
-  if (RPC === undefined) {
-    throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
-  }
-  const web3 = new Web3(RPC);
-
-  const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
-  const flareSystemsManager = new web3.eth.Contract(flareSystemsManagerAbi, CONTRACTS.FlareSystemsManager.address);
+export async function signUptimeVote(web3: Web3, flareSystemsManagerAddress: string, rewardEpochId: number, fakeVoteHash: string) {
 
   if (!process.env.PRIVATE_KEY || !process.env.SIGNING_POLICY_PRIVATE_KEY) {
     throw new Error(
@@ -61,6 +50,8 @@ export async function signUptimeVote(rewardEpochId: number, fakeVoteHash: string
   }
   const signingPrivateKey = process.env.SIGNING_POLICY_PRIVATE_KEY;
   const senderPrivateKey = process.env.PRIVATE_KEY;
+
+  const flareSystemsManager = await initializeFlareSystemsManager(web3, flareSystemsManagerAddress);
 
   const wallet = web3.eth.accounts.privateKeyToAccount(senderPrivateKey);
   console.log(`Sending uptime vote for epoch ${rewardEpochId} from ${wallet.address}`);
@@ -73,9 +64,8 @@ export async function signUptimeVote(rewardEpochId: number, fakeVoteHash: string
   gasPrice = (gasPrice * 120n) / 100n; // bump gas price by 20%
   const tx = {
     from: wallet.address,
-    to: CONTRACTS.FlareSystemsManager.address,
+    to: flareSystemsManagerAddress,
     data: flareSystemsManager.methods.signUptimeVote(rewardEpochId, fakeVoteHash, signature).encodeABI(),
-    value: "0",
     gas: "500000",
     gasPrice,
     nonce: Number(nonce).toString(),
@@ -95,22 +85,18 @@ export async function signUptimeVote(rewardEpochId: number, fakeVoteHash: string
   }
 }
 
-export async function signRewards(rewardEpochId: number, rewardsHash: string, noOfWeightBasedClaims: number) {
-  if (RPC === undefined) {
-    throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
-  }
-  const web3 = new Web3(RPC);
-
-  const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
-  const flareSystemsManager = new web3.eth.Contract(flareSystemsManagerAbi, CONTRACTS.FlareSystemsManager.address);
+export async function signRewards(web3: Web3, flareSystemsManagerAddress: string, rewardEpochId: number, rewardsHash: string, noOfWeightBasedClaims: number) {
 
   if (!process.env.PRIVATE_KEY || !process.env.SIGNING_POLICY_PRIVATE_KEY) {
     throw new Error(
       "PRIVATE_KEY and SIGNING_POLICY_PRIVATE_KEY env variables are required."
     );
   }
+
   const signingPrivateKey = process.env.SIGNING_POLICY_PRIVATE_KEY;
   const senderPrivateKey = process.env.PRIVATE_KEY;
+
+  const flareSystemsManager = await initializeFlareSystemsManager(web3, flareSystemsManagerAddress);
 
   const wallet = web3.eth.accounts.privateKeyToAccount(senderPrivateKey);
   console.log(`Sending Merkle root for epoch ${rewardEpochId} from ${wallet.address}`);
@@ -135,7 +121,7 @@ export async function signRewards(rewardEpochId: number, rewardsHash: string, no
   gasPrice = (gasPrice * 120n) / 100n; // bump gas price by 20%
   const tx = {
     from: wallet.address,
-    to: CONTRACTS.FlareSystemsManager.address,
+    to: flareSystemsManagerAddress,
     data: flareSystemsManager.methods
       .signRewards(rewardEpochId, noOfWeightBasedClaimsAndId, rewardsHash, signature)
       .encodeABI(),

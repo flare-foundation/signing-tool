@@ -1,20 +1,13 @@
 import Web3 from "web3";
-import { CONTRACTS, RPC, ZERO_BYTES32 } from "../configs/networks";
-import { readFileSync } from "fs";
+import { ZERO_BYTES32 } from "../configs/networks";
 import * as dotenv from "dotenv";
+import { initializeFlareSystemsManager } from "../lib/initialize";
 
 dotenv.config();
 
-export async function getStatus(rewardEpochId: number) {
+export async function getStatus(web3: Web3, flareSystemsManagerAddress: string, rewardEpochId: number) {
 
-    if (!RPC) {
-        throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
-    }
-
-    const web3 = new Web3(RPC);
-
-    const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;
-    const flareSystemsManager = new web3.eth.Contract(flareSystemsManagerAbi, CONTRACTS.FlareSystemsManager.address);
+    const flareSystemsManager = await initializeFlareSystemsManager(web3, flareSystemsManagerAddress);
 
     const currentRewardEpochId: number = Number(await flareSystemsManager.methods.getCurrentRewardEpochId().call());
     let endRewardEpochId: number;
@@ -27,8 +20,6 @@ export async function getStatus(rewardEpochId: number) {
         endRewardEpochId = currentRewardEpochId;
         startRewardEpochId = rewardEpochId;
     }
-
-
 
     console.log(`Reward epoch ID | Uptime vote finished | Rewards vote finished`);
     for (
