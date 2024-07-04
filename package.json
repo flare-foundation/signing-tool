@@ -23,9 +23,7 @@
     "web3": "^4",
     "dotenv": "^8.2.0",
     "commander": "^9.4.1",
-    "inquirer": "8.0",
-    "hardhat": "2.22.6",
-    "@openzeppelin/contracts": "5.0.2"
+    "inquirer": "8.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.186",
@@ -55,7 +53,9 @@
     "@typechain/truffle-v5": "^8.0.7",
     "@typechain/web3-v1": "^6.0.7",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "hardhat": "2.22.6",
+    "@openzeppelin/contracts": "5.0.2"
   },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
@@ -65,7 +65,8 @@
       "lib/initialize.ts",
       "lib/ECDSASignature.ts",
       "src/sign.ts",
-      "src/status.ts"
+      "src/status.ts",
+      "configs/networks.ts"
     ],
     "reporter": [
       "html",

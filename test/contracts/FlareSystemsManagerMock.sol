@@ -17,10 +17,15 @@ contract FlareSystemsManagerMock {
     }
 
     mapping(uint256 rewardEpochId => mapping(address voter => bytes32))
-        public uptimeVoteHash;
+        public voterUptimeVoteHash;
 
     mapping(uint256 rewardEpochId => mapping(address voter => bytes32))
-        public rewardsHash;
+        public voterRewardsHash;
+
+    mapping(uint256 rewardEpochId => bytes32) public uptimeVoteHash;
+    mapping(uint256 rewardEpochId => bytes32) public rewardsHash;
+
+    uint256 private currentRewardEpochId;
 
     function signUptimeVote(
         uint24 _rewardEpochId,
@@ -36,8 +41,8 @@ contract FlareSystemsManagerMock {
             _signature.r,
             _signature.s
         );
-        require(uptimeVoteHash[_rewardEpochId][signingPolicyAddress] == bytes32(0), "already signed");
-        uptimeVoteHash[_rewardEpochId][signingPolicyAddress] = _uptimeVoteHash;
+        require(voterUptimeVoteHash[_rewardEpochId][signingPolicyAddress] == bytes32(0), "already signed");
+        voterUptimeVoteHash[_rewardEpochId][signingPolicyAddress] = _uptimeVoteHash;
     }
 
     function signRewards(
@@ -54,7 +59,20 @@ contract FlareSystemsManagerMock {
             _signature.r,
             _signature.s
         );
-        require(rewardsHash[_rewardEpochId][signingPolicyAddress] == bytes32(0), "already signed");
-        rewardsHash[_rewardEpochId][signingPolicyAddress] = _rewardsHash;
+        require(voterRewardsHash[_rewardEpochId][signingPolicyAddress] == bytes32(0), "already signed");
+        voterRewardsHash[_rewardEpochId][signingPolicyAddress] = _rewardsHash;
+    }
+
+    function setCurrentRewardEpochId(uint256 _rewardEpochId) external {
+        currentRewardEpochId = _rewardEpochId;
+    }
+
+    function getCurrentRewardEpochId() external view returns (uint256) {
+        return currentRewardEpochId;
+    }
+
+    function setHashes(uint256 _rewardEpochId, bytes32 _uptimeVoteHash, bytes32 _rewardsHash) external {
+        uptimeVoteHash[_rewardEpochId] = _uptimeVoteHash;
+        rewardsHash[_rewardEpochId] = _rewardsHash;
     }
 }

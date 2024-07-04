@@ -18,7 +18,7 @@ export async function cli(program: Command) {
             let uptimeVoteHash = await getUptimeVoteHash(web3);
             const shouldContinue = await prompts.continueUptimeVote(rewardEpochId, uptimeVoteHash);
             if (shouldContinue.continueUptimeVote) {
-                await signUptimeVote(web3, CONTRACTS.FlareSystemsManager.address, rewardEpochId, uptimeVoteHash);
+                await signUptimeVote(web3, CONTRACTS().FlareSystemsManager.address, rewardEpochId, uptimeVoteHash);
             }
         })
     program
@@ -33,7 +33,7 @@ export async function cli(program: Command) {
             const shouldContinue = await prompts.continueRewards(rewardEpochId, rewardsHash, noOfWeightBasedClaims);
             if (shouldContinue.continueRewards) {
                 const web3 = await initializeWeb3();
-                await signRewards(web3, CONTRACTS.FlareSystemsManager.address, rewardEpochId, rewardsHash, noOfWeightBasedClaims);
+                await signRewards(web3, CONTRACTS().FlareSystemsManager.address, rewardEpochId, rewardsHash, noOfWeightBasedClaims);
             }
         })
     program
@@ -41,6 +41,6 @@ export async function cli(program: Command) {
         .option("-r, --first-reward-epoch-id <firstRewardEpochId>", "First reward epoch id")
         .action(async (options: OptionValues) => {
             const web3 = await initializeWeb3();
-            await getStatus(web3, CONTRACTS.FlareSystemsManager.address, Number(options.firstRewardEpochId));
+            await getStatus(web3, CONTRACTS().FlareSystemsManager.address, Number(options.firstRewardEpochId));
         })
 }

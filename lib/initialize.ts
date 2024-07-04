@@ -8,8 +8,8 @@ export async function initializeFlareSystemsManager(web3: Web3, flareSystemsMana
 }
 
 export async function initializeWeb3() {
-    if (RPC === undefined) {
+    if (RPC() === undefined) {
         throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
     }
-    return new Web3(RPC);
+    return new Web3(RPC());
 }

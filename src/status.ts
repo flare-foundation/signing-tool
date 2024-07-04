@@ -10,6 +10,29 @@ export async function getStatus(web3: Web3, flareSystemsManagerAddress: string, 
     const flareSystemsManager = await initializeFlareSystemsManager(web3, flareSystemsManagerAddress);
 
     const currentRewardEpochId: number = Number(await flareSystemsManager.methods.getCurrentRewardEpochId().call());
+
+    let [startRewardEpochId, endRewardEpochId] = await getEpochRange(rewardEpochId, currentRewardEpochId);
+
+    console.log(`Reward epoch ID | Uptime vote finished | Rewards vote finished`);
+    for (
+        let epochId = startRewardEpochId;
+        epochId <= endRewardEpochId;
+        epochId++
+    ) {
+
+        const uptimeVoteHash = await flareSystemsManager.methods.uptimeVoteHash(epochId).call();
+        const rewardsHash = await flareSystemsManager.methods.rewardsHash(epochId).call();
+
+        const isUptimeHash = uptimeVoteHash && (uptimeVoteHash as any as string) !== ZERO_BYTES32;
+        const isRewardsHash = rewardsHash && (rewardsHash as any as string) !== ZERO_BYTES32;
+
+        console.log(
+            `${(epochId.toString().padStart(11)).padEnd(24)} ${(isUptimeHash ? " YES " : " NO ").padEnd(24)}${(isRewardsHash ? "YES " : " NO ").padEnd(9)}`
+        );
+    }
+}
+
+export async function getEpochRange(rewardEpochId: number, currentRewardEpochId: number) {
     let endRewardEpochId: number;
     let startRewardEpochId: number;
 
@@ -21,21 +44,5 @@ export async function getStatus(web3: Web3, flareSystemsManagerAddress: string, 
         startRewardEpochId = rewardEpochId;
     }
 
-    console.log(`Reward epoch ID | Uptime vote finished | Rewards vote finished`);
-    for (
-        let rewardEpochId = startRewardEpochId;
-        rewardEpochId <= endRewardEpochId;
-        rewardEpochId++
-    ) {
-
-        const uptimeVoteHash = await flareSystemsManager.methods.uptimeVoteHash(rewardEpochId).call();
-        const rewardsHash = await flareSystemsManager.methods.rewardsHash(rewardEpochId).call();
-
-        const isUptimeHash = uptimeVoteHash && (uptimeVoteHash as any as string) !== ZERO_BYTES32;
-        const isRewardsHash = rewardsHash && (rewardsHash as any as string) !== ZERO_BYTES32;
-
-        console.log(
-            `${(rewardEpochId.toString().padStart(11)).padEnd(24)} ${(isUptimeHash ? " YES " : " NO ").padEnd(24)}${(isRewardsHash ? "YES " : " NO ").padEnd(9)}`
-        );
-    }
+    return [startRewardEpochId, endRewardEpochId];
 }

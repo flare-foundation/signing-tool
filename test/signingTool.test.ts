@@ -2,18 +2,22 @@ import { getTestFile } from "./utils";
 import { initializeWeb3 } from "../lib/initialize";
 import { expect } from "chai";
 import { getRewardCalculationDataPath, getRewardsData, getUptimeVoteHash, signRewards, signUptimeVote } from "../src/sign";
-import { ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks";
+import { CONTRACTS, RPC, ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks";
 import { FlareSystemsManagerMockContract, FlareSystemsManagerMockInstance } from '../typechain-truffle';
 import { ECDSASignature } from "../lib/ECDSASignature";
+import { getEpochRange, getStatus } from "../src/status";
 
 let fs = require('fs');
 
 const FlareSystemsManagerMock: FlareSystemsManagerMockContract = artifacts.require("FlareSystemsManagerMock");
 
+//// Before running these tests comment local .env file
+
 contract(`Signing tool test; ${getTestFile(__filename)}`, async accounts => {
 
-    before(async () => {
+    beforeEach(async () => {
         process.env.NETWORK = "coston";
+        fsmMock = await FlareSystemsManagerMock.new();
     });
 
     let fsmMock: FlareSystemsManagerMockInstance;
@@ -25,7 +29,9 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async accounts => {
         });
         it("Should revert initializing web3 if network env variable is not set", async () => {
             process.env.NETWORK = "x";
-            await expect(initializeWeb3()).to.be.revertedWith('NETWORK env variable is not set or is set to an unsupported network.');
+            await expect(initializeWeb3()).to.be.rejectedWith(Error).then(e => {
+                expect(e.toString()).to.be.equal("Error: NETWORK env variable is not set or is set to an unsupported network.");
+            });
         });
     });
 
@@ -47,13 +53,12 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async accounts => {
             process.env.PRIVATE_KEY = privateKeys[0].privateKey;
             process.env.SIGNING_POLICY_PRIVATE_KEY = privateKeys[1].privateKey;
 
-            fsmMock = await FlareSystemsManagerMock.new();
-            let signedHash = await fsmMock.uptimeVoteHash(0, accounts[1]);
+            let signedHash = await fsmMock.voterUptimeVoteHash(0, accounts[1]);
             expect(signedHash).to.eq(ZERO_BYTES32);
 
             let uptimeVoteHash = await getUptimeVoteHash(web3);
             await signUptimeVote(web3, fsmMock.address, 0, uptimeVoteHash);
-            signedHash = await fsmMock.uptimeVoteHash(0, accounts[1]);
+            signedHash = await fsmMock.voterUptimeVoteHash(0, accounts[1]);
             expect(signedHash).to.eq(uptimeVoteHash);
         });
 
@@ -61,8 +66,6 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async accounts => {
             const privateKeys = JSON.parse(fs.readFileSync('test/test-1020-accounts.json'))
             process.env.PRIVATE_KEY = privateKeys[0].privateKey;
             process.env.SIGNING_POLICY_PRIVATE_KEY = privateKeys[1].privateKey;
-
-            fsmMock = await FlareSystemsManagerMock.new();
 
             let uptimeVoteHash = await getUptimeVoteHash(web3);
             await signUptimeVote(web3, fsmMock.address, 0, uptimeVoteHash);
@@ -128,13 +131,12 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async accounts => {
             process.env.PRIVATE_KEY = privateKeys[0].privateKey;
             process.env.SIGNING_POLICY_PRIVATE_KEY = privateKeys[1].privateKey;
 
-            fsmMock = await FlareSystemsManagerMock.new();
-            let signedHash = await fsmMock.rewardsHash(3, accounts[1]);
+            let signedHash = await fsmMock.voterRewardsHash(3, accounts[1]);
             expect(signedHash).to.eq(ZERO_BYTES32);
 
             let rewardsHash = web3.utils.keccak256("rewards hash");
             await signRewards(web3, fsmMock.address, 3, rewardsHash, 56);
-            signedHash = await fsmMock.rewardsHash(3, accounts[1]);
+            signedHash = await fsmMock.voterRewardsHash(3, accounts[1]);
             expect(signedHash).to.eq(rewardsHash);
         });
 
@@ -142,8 +144,6 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async accounts => {
             const privateKeys = JSON.parse(fs.readFileSync('test/test-1020-accounts.json'))
             process.env.PRIVATE_KEY = privateKeys[0].privateKey;
             process.env.SIGNING_POLICY_PRIVATE_KEY = privateKeys[1].privateKey;
-
-            fsmMock = await FlareSystemsManagerMock.new();
 
             let rewardsHash = web3.utils.keccak256("rewards hash");
             await signRewards(web3, fsmMock.address, 3, rewardsHash, 56);
@@ -176,6 +176,65 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async accounts => {
             await expect(ECDSASignature.signMessageHash(messageHash, privateKey)).to.be.rejectedWith(Error).then(e => {
                 expect(e.toString()).to.be.equal(`Error: Invalid message hash format: ${messageHash}`);
             });
+        });
+    });
+
+    describe("Status", async () => {
+        it("Should get first and last epochs if epoch ID is not provided", async () => {
+            await fsmMock.setCurrentRewardEpochId(30);
+            let [firstRewardEpochId, lastRewardEpochId] = await getEpochRange(NaN, 30);
+            expect(firstRewardEpochId).to.eq(26);
+            expect(lastRewardEpochId).to.eq(30);
+
+            await getStatus(web3, fsmMock.address, NaN);
+        });
+
+        it("Should get first and last epochs if epoch ID is provided", async () => {
+            await fsmMock.setCurrentRewardEpochId(30);
+            let [firstRewardEpochId, lastRewardEpochId] = await getEpochRange(18, 30);
+            expect(firstRewardEpochId).to.eq(18);
+            expect(lastRewardEpochId).to.eq(30);
+
+
+            await fsmMock.setHashes(18, web3.utils.keccak256("hash1"), web3.utils.keccak256("hash2"));
+            await getStatus(web3, fsmMock.address, 18);
+        });
+    });
+
+    describe("Networks", async () => {
+        it ("Should get contract address", async () => {
+            expect(CONTRACTS().FlareSystemsManager.address).to.eq("0x85680Dd93755Fe5d0789773fd0896cEE51F9e358");
+
+            process.env.NETWORK = "coston2";
+            expect(CONTRACTS().FlareSystemsManager.address).to.eq("0xbC1F76CEB521Eb5484b8943B5462D08ea96617A1");
+
+            process.env.NETWORK = "songbird";
+            expect(CONTRACTS().FlareSystemsManager.address).to.eq("0x421c69E22f48e14Fc2d2Ee3812c59bfb81c38516");
+
+            process.env.NETWORK = "flare";
+            expect(CONTRACTS().FlareSystemsManager.address).to.eq("");
+
+            process.env.NETWORK = "x";
+            expect(CONTRACTS()).to.eq(undefined);
+        });
+
+        it("Should get RPC", async () => {
+            expect(RPC()).to.eq("https://coston-api.flare.network/ext/bc/C/rpc");
+
+            process.env.NETWORK = "coston2";
+            expect(RPC()).to.eq("https://coston2-api.flare.network/ext/bc/C/rpc");
+
+            process.env.NETWORK = "songbird";
+            expect(RPC()).to.eq("https://songbird-api.flare.network/ext/bc/C/rpc");
+
+            process.env.NETWORK = "flare";
+            expect(RPC()).to.eq("https://flare-api.flare.network/ext/bc/C/rpc");
+
+            process.env.FLARE_RPC = "private-rpc";
+            expect(RPC()).to.eq("private-rpc");
+
+            process.env.NETWORK = "x";
+            expect(RPC()).to.eq(undefined);
         });
     });
 });
