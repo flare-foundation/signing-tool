@@ -5,15 +5,17 @@ Tool for signing uptime vote and rewards in FTSO V2 protocol.
 ##  Config file
 NOTE: Ensure that you work in a secure environment (server).
 
-Create an environment file (`.env`) with the following content (see `.env.example`):
-- `SIGNING_POLICY_PRIVATE_KEY` - Private key of the signing policy address.
+Create an environment file (`.env`) with the following content (see `.env_template`):
+- `SIGNING_POLICY_PRIVATE_KEY` - Private key of the signing policy address. Private key should be prefixed with `0x`.
 - `NETWORK` - Network on which to sign (`flare`, `songbird`, `coston`, `coston2`).
-- `PRIVATE_KEY` - Private key of the address that will be used to send transactions (recommended not to be the same as `SIGNING_POLICY_PRIVATE_KEY` to avoid nonce issues since the signing policy address is used for finalizations by [Flare Systems Client](https://github.com/flare-foundation/flare-system-client)).
+- `PRIVATE_KEY` - Private key of the address that will be used to send transactions (recommended not to be the same as `SIGNING_POLICY_PRIVATE_KEY` to avoid nonce issues since the signing policy address is used for finalizations by [Flare Systems Client](https://github.com/flare-foundation/flare-system-client)). Recommended to use a private key, distinct of any data provider entity keys, specifically used for sending transactions and paying gas. Private key should be prefixed with `0x`.
 - Optionally one can set custom RPC endpoints for each network that will override the public ones (e.g. for Flare network one should set `FLARE_RPC=<private_rpc>`, for others use `SONGBIRD_RPC`, `COSTON_RPC`, `COSTON2_RPC`).
 
 A data provider is encouraged to use more advanced approaches like cloud key management tools to initialize specific environment variables more securely.
 
 ## Build the tool
+
+Recommended Node.js versions are 18-20.x.x.
 - Clone the repo.
 - Install dependencies:
 ```bash
