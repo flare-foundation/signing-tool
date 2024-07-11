@@ -46,7 +46,7 @@ bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>
 
 Checks the signing status for both uptime vote and reward
 ```bash
-bin/signing-tool status --reward-epoch-id <reward_epoch_id>
+bin/signing-tool status --first-reward-epoch-id <reward_epoch_id>
 ```
 
 ## Technical details
