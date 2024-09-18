@@ -36,7 +36,7 @@ bin/signing-tool uptime --reward-epoch-id <reward_epoch_id>
 
 ## Signing rewards
 
-Fetches the reward distribution data from [reward calculation results](https://github.com/flare-foundation/FTSO-Scaling/tree/main/rewards-data). It prints out the data and once confirmed it signs them with `SIGNING_POLICY_PRIVATE_KEY` and sends them to `FlareSystemsManager` smart contract.
+Fetches the reward distribution data from [reward calculation results](https://github.com/flare-foundation/fsp-rewards/tree/main/). It prints out the data and once confirmed it signs them with `SIGNING_POLICY_PRIVATE_KEY` and sends them to `FlareSystemsManager` smart contract.
 
 ```bash
 bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>
@@ -66,6 +66,6 @@ In current deployments uptime voting is not fully supported and used. But since 
 
 ### Reward distribution voting
 
-Currently Flare calculates rewards using the [reward calculation algorithm](https://github.com/flare-foundation/FTSO-Scaling/blob/main/scripts/rewards/README.md) and publishes the [results](https://github.com/flare-foundation/FTSO-Scaling/tree/main/rewards-data). If data providers agree on those results they can sign them using the Signing tool as described above. The method [signRewards](https://github.com/flare-foundation/flare-smart-contracts-v2/blob/main/contracts/protocol/implementation/FlareSystemsManager.sol#L504) is used on `FlareSystemsManager` smart contract.
+Currently Flare calculates rewards using the [reward calculation algorithm](https://github.com/flare-foundation/FTSO-Scaling/blob/main/scripts/rewards/README.md) and publishes the [results](https://github.com/flare-foundation/fsp-rewards/tree/main/). If data providers agree on those results they can sign them using the Signing tool as described above. The method [signRewards](https://github.com/flare-foundation/flare-smart-contracts-v2/blob/main/contracts/protocol/implementation/FlareSystemsManager.sol#L504) is used on `FlareSystemsManager` smart contract.
 
 
