@@ -5,6 +5,7 @@ import { ZERO_BYTES32, networks } from "../configs/networks";
 import axios from 'axios';
 import * as dotenv from "dotenv";
 import { initializeFlareSystemsManager } from "../lib/initialize";
+import { round } from "./utils";
 
 dotenv.config();
 
@@ -61,7 +62,8 @@ export async function signUptimeVote(web3: Web3, flareSystemsManagerAddress: str
   const signature = await ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
-  gasPrice = (gasPrice * 120n) / 100n; // bump gas price by 20%
+  const gasPriceMultiplier = process.env.GAS_PRICE_MULTIPLIER ? round(Number(process.env.GAS_PRICE_MULTIPLIER), 2) : 10;
+  gasPrice = gasPrice * BigInt(gasPriceMultiplier * 100) / 100n;
   const tx = {
     from: wallet.address,
     to: flareSystemsManagerAddress,
@@ -118,7 +120,8 @@ export async function signRewards(web3: Web3, flareSystemsManagerAddress: string
   const signature = await ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
-  gasPrice = (gasPrice * 120n) / 100n; // bump gas price by 20%
+  const gasPriceMultiplier = process.env.GAS_PRICE_MULTIPLIER ? round(Number(process.env.GAS_PRICE_MULTIPLIER), 2) : 10;
+  gasPrice = gasPrice * BigInt(gasPriceMultiplier * 100) / 100n;
   const tx = {
     from: wallet.address,
     to: flareSystemsManagerAddress,
