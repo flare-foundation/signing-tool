@@ -1,6 +1,10 @@
+<p align="center">
+  <a href="https://flare.network/" target="blank"><img src="https://content.flare.network/Flare-2.svg" width="410" height="106" alt="Flare Logo" /></a>
+</p>
+
 # Signing tool
 
-Tool for signing uptime vote and rewards in FTSO V2 protocol.
+Tool for signing uptime vote and rewards in Flare Systems Protocol.
 
 ##  Config file
 NOTE: Ensure that you work in a secure environment (server).
@@ -16,7 +20,7 @@ A data provider is encouraged to use more advanced approaches like cloud key man
 
 ## Build the tool
 
-Recommended Node.js versions are 18-20.x.x.
+Required Node.js versions are 22.x.x or higher.
 - Clone the repo.
 - Install dependencies:
 ```bash

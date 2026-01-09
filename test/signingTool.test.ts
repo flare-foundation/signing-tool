@@ -6,6 +6,9 @@ import { CONTRACTS, RPC, ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks"
 import { FlareSystemsManagerMockContract, FlareSystemsManagerMockInstance } from '../typechain-truffle';
 import { ECDSASignature } from "../lib/ECDSASignature";
 import { getEpochRange, getStatus } from "../src/status";
+import { EventEmitter } from "events";
+// increase max listeners to prevent warning
+EventEmitter.defaultMaxListeners = 20;
 
 let fs = require('fs');
 
@@ -88,12 +91,12 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async accounts => {
 
         it("Should get rewards calculation data path for songbird", async () => {
             process.env.NETWORK = "songbird";
-            expect(await getRewardCalculationDataPath(12)).to.eq("https://raw.githubusercontent.com/flare-foundation/FTSO-scaling/main/rewards-data/songbird/12/reward-distribution-data.json");
+            expect(await getRewardCalculationDataPath(12)).to.eq("https://raw.githubusercontent.com/flare-foundation/fsp-rewards/refs/heads/main/songbird/12/reward-distribution-data.json");
         });
 
         it("Should get rewards calculation data path for flare", async () => {
             process.env.NETWORK = "flare";
-            expect(await getRewardCalculationDataPath(90)).to.eq("https://raw.githubusercontent.com/flare-foundation/FTSO-scaling/main/rewards-data/flare/90/reward-distribution-data.json");
+            expect(await getRewardCalculationDataPath(90)).to.eq("https://raw.githubusercontent.com/flare-foundation/fsp-rewards/refs/heads/main/flare/90/reward-distribution-data.json");
         });
 
         it("Should return undefined if NETWORK env variable is set to unsupported network", async () => {
@@ -212,7 +215,7 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async accounts => {
             expect(CONTRACTS().FlareSystemsManager.address).to.eq("0x421c69E22f48e14Fc2d2Ee3812c59bfb81c38516");
 
             process.env.NETWORK = "flare";
-            expect(CONTRACTS().FlareSystemsManager.address).to.eq("");
+            expect(CONTRACTS().FlareSystemsManager.address).to.eq("0x89e50DC0380e597ecE79c8494bAAFD84537AD0D4");
 
             process.env.NETWORK = "x";
             expect(CONTRACTS()).to.eq(undefined);

@@ -3,7 +3,7 @@ import { ZERO_BYTES32 } from "../configs/networks";
 import * as dotenv from "dotenv";
 import { initializeFlareSystemsManager } from "../lib/initialize";
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 export async function getStatus(web3: Web3, flareSystemsManagerAddress: string, rewardEpochId: number) {
 

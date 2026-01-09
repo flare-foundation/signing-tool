@@ -7,7 +7,7 @@ import "@nomicfoundation/hardhat-web3-v4";
 import { HardhatUserConfig } from "hardhat/config";
 import * as dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 let fs = require('fs');
 

@@ -4,6 +4,7 @@ artifacts
 dist
 coverage
 .nyc_output
+nul
 
 .DS_Store
 

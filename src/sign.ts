@@ -7,7 +7,7 @@ import * as dotenv from "dotenv";
 import { initializeFlareSystemsManager } from "../lib/initialize";
 import { round } from "./utils";
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 export async function getRewardCalculationDataPath(rewardEpochId: number) {
   const network = process.env.NETWORK as networks;
@@ -78,7 +78,9 @@ export async function signUptimeVote(web3: Web3, flareSystemsManagerAddress: str
     console.log(`Uptime vote for epoch ${rewardEpochId} from ${wallet.address} sent`);
   }
   catch (e: any) {
-    if ("reason" in e) {
+    if ("innerError" in e && e.innerError != undefined && "message" in e.innerError) {
+      console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e.innerError.message}`);
+    } else if ("reason" in e && e.reason != undefined) {
       console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e.reason}`);
     } else {
       console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e}`);
@@ -137,7 +139,9 @@ export async function signRewards(web3: Web3, flareSystemsManagerAddress: string
     const receipt = await web3.eth.sendSignedTransaction(signed.rawTransaction);
     console.log(`Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address} sent`);
   } catch (e: any) {
-    if ("reason" in e) {
+     if ("innerError" in e && e.innerError != undefined && "message" in e.innerError) {
+      console.error(`Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e.innerError.message}`);
+    } else if ("reason" in e && e.reason != undefined) {
       console.error(`Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e.reason}`);
     } else {
       console.error(`Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e}`);

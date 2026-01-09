@@ -14,7 +14,7 @@ export const prompts = {
         "Yes",
         "No"
       ],
-      filter: (val :String) => {
+      filter: (val: string) => {
         return val == "Yes" ? true : false
       }
     }];
