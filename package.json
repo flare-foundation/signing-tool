@@ -7,6 +7,9 @@
   "bin": {
     "signing-tool": "bin/signing-tool"
   },
+     "engines": {
+      "node": ">=22.0.0"
+  },
   "scripts": {
     "build": "rimraf dist/ && yarn tsc -b",
     "sign": "yarn ts-node src/sign.ts",
