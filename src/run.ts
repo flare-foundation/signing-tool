@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { cli } from "./cli";
+import { cli } from "./cli.js";
 
 const program = new Command("Signing Tool");
 cli(program).then(() => {

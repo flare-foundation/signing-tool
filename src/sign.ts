@@ -1,11 +1,11 @@
-import Web3 from "web3";
-import { ECDSASignature } from "../lib/ECDSASignature";
-import { IRewardDistributionData } from "../lib/interfaces";
-import { ZERO_BYTES32, networks } from "../configs/networks";
+import { Web3}  from "web3";
+import { ECDSASignature } from "../lib/ECDSASignature.js";
+import { IRewardDistributionData } from "../lib/interfaces.js";
+import { ZERO_BYTES32, networks } from "../configs/networks.js";
 import axios from "axios";
 import * as dotenv from "dotenv";
-import { initializeFlareSystemsManager } from "../lib/initialize";
-import { round } from "./utils";
+import { initializeFlareSystemsManager } from "../lib/initialize.js";
+import { round } from "./utils.js";
 
 dotenv.config({ quiet: true });
 
@@ -69,7 +69,7 @@ export async function signUptimeVote(
   const tx = {
     from: wallet.address,
     to: flareSystemsManagerAddress,
-    data: flareSystemsManager.methods.signUptimeVote(rewardEpochId, fakeVoteHash, signature).encodeABI(),
+    data: flareSystemsManager.methods.signUptimeVote!(rewardEpochId, fakeVoteHash, signature).encodeABI(),
     gas: "500000",
     gasPrice,
     nonce: Number(nonce).toString(),
@@ -131,7 +131,7 @@ export async function signRewards(
     from: wallet.address,
     to: flareSystemsManagerAddress,
     data: flareSystemsManager.methods
-      .signRewards(rewardEpochId, noOfWeightBasedClaimsAndId, rewardsHash, signature)
+      .signRewards!(rewardEpochId, noOfWeightBasedClaimsAndId, rewardsHash, signature)
       .encodeABI(),
     gas: "500000",
     gasPrice,

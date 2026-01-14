@@ -1,4 +1,4 @@
-import Web3 from "web3";
+import { Web3 } from "web3";
 export interface IECDSASignature {
   r: string;
   s: string;

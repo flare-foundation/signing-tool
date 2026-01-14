@@ -1,4 +1,4 @@
-import { NetworkContractAddresses } from "./contracts";
+import { NetworkContractAddresses } from "./contracts.js";
 import * as dotenv from "dotenv";
 
 dotenv.config({ quiet: true });
@@ -38,7 +38,7 @@ const contracts = () => {
     case "flare":
       return FLARE_CONFIG;
     default:
-      ((_: never): void => {})(network);
+      throw new Error(`Unsupported network: ${network}`);
   }
 };
 
@@ -54,7 +54,7 @@ const rpc = () => {
     case "flare":
       return process.env.FLARE_RPC || FLARE_RPC;
     default:
-      ((_: never): void => {})(network);
+      throw new Error(`Unsupported network: ${network}`);
   }
 };
 

@@ -1,14 +1,32 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "commonjs",
+    "outDir": "./dist",
+
+    "target": "esnext",
+    "module": "nodenext",
+
+    // Other Outputs
+    "sourceMap": true,
     "declaration": true,
-    "experimentalDecorators": true,
+    "declarationMap": true,
+
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "strictNullChecks": true,
+
+    // Javascript
+    "allowJs":true,
+
     "esModuleInterop": true,
-    "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "outDir": "./dist"
+
+    // Recommended Options
+    "strict": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
   },
   "include": ["src/**/*", "./typechain-web3-v1", "lib/ECDSASignature.ts", "lib/interfaces.ts", "lib/initialize.ts"]
 }

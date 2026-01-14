@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
-import Web3 from "web3";
-import { RPC } from "../configs/networks";
+import { Web3 } from "web3";
+import { RPC } from "../configs/networks.js";
 
 export async function initializeFlareSystemsManager(web3: Web3, flareSystemsManagerAddress: string) {
   const flareSystemsManagerAbi = JSON.parse(readFileSync(`abi/FlareSystemsManager.json`).toString()).abi;

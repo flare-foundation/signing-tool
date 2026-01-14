@@ -4,6 +4,7 @@
   "description": "Flare Systems Protocol uptime and rewards signing tool",
   "license": "MIT",
   "author": "Flare Network",
+  "type": "module",
   "bin": {
     "signing-tool": "bin/signing-tool"
   },
@@ -24,12 +25,15 @@
   },
   "dependencies": {
     "axios": "^1.6.5",
+    "chalk": "^5.3.0",
     "commander": "^9.4.1",
     "dotenv": "^17.0.0",
     "inquirer": "^8.0.0",
     "web3": "^4.0.0"
   },
   "devDependencies": {
+    "@eslint/compat": "^2.0.1",
+    "@flarenetwork/eslint-config-flare": "^0.0.1",
     "@flarenetwork/prettier-config-flare": "^0.0.2",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
@@ -52,6 +56,8 @@
     "@types/mocha": "^10.0.0",
     "@types/node": "^16.11.15",
     "chai": "^4.3.7",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
     "hardhat": "2.22.6",
     "mocha": "^10.0.0",
     "npm-run-all": "^4.1.5",
