@@ -41,8 +41,14 @@ contract FlareSystemsManagerMock {
             _signature.r,
             _signature.s
         );
-        require(voterUptimeVoteHash[_rewardEpochId][signingPolicyAddress] == bytes32(0), "already signed");
-        voterUptimeVoteHash[_rewardEpochId][signingPolicyAddress] = _uptimeVoteHash;
+        require(
+            voterUptimeVoteHash[_rewardEpochId][signingPolicyAddress] ==
+                bytes32(0),
+            "already signed"
+        );
+        voterUptimeVoteHash[_rewardEpochId][
+            signingPolicyAddress
+        ] = _uptimeVoteHash;
     }
 
     function signRewards(
@@ -51,15 +57,24 @@ contract FlareSystemsManagerMock {
         bytes32 _rewardsHash,
         Signature calldata _signature
     ) external {
-        bytes32 messageHash = keccak256(abi.encode(
-            _rewardEpochId, keccak256(abi.encode(_noOfWeightBasedClaims)), _rewardsHash));
+        bytes32 messageHash = keccak256(
+            abi.encode(
+                _rewardEpochId,
+                keccak256(abi.encode(_noOfWeightBasedClaims)),
+                _rewardsHash
+            )
+        );
         address signingPolicyAddress = ECDSA.recover(
             MessageHashUtils.toEthSignedMessageHash(messageHash),
             _signature.v,
             _signature.r,
             _signature.s
         );
-        require(voterRewardsHash[_rewardEpochId][signingPolicyAddress] == bytes32(0), "already signed");
+        require(
+            voterRewardsHash[_rewardEpochId][signingPolicyAddress] ==
+                bytes32(0),
+            "already signed"
+        );
         voterRewardsHash[_rewardEpochId][signingPolicyAddress] = _rewardsHash;
     }
 
@@ -71,7 +86,11 @@ contract FlareSystemsManagerMock {
         return currentRewardEpochId;
     }
 
-    function setHashes(uint256 _rewardEpochId, bytes32 _uptimeVoteHash, bytes32 _rewardsHash) external {
+    function setHashes(
+        uint256 _rewardEpochId,
+        bytes32 _uptimeVoteHash,
+        bytes32 _rewardsHash
+    ) external {
         uptimeVoteHash[_rewardEpochId] = _uptimeVoteHash;
         rewardsHash[_rewardEpochId] = _rewardsHash;
     }

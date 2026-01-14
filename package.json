@@ -7,8 +7,8 @@
   "bin": {
     "signing-tool": "bin/signing-tool"
   },
-     "engines": {
-      "node": ">=22.0.0"
+  "engines": {
+    "node": ">=22.0.0"
   },
   "scripts": {
     "build": "rimraf dist/ && yarn tsc -b",
@@ -24,24 +24,14 @@
   },
   "dependencies": {
     "axios": "^1.6.5",
-    "web3": "^4.0.0",
-    "dotenv": "^17.0.0",
     "commander": "^9.4.1",
-    "inquirer": "^8.0.0"
+    "dotenv": "^17.0.0",
+    "inquirer": "^8.0.0",
+    "web3": "^4.0.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.186",
-    "@types/mocha": "^10.0.0",
-    "@types/node": "^16.11.15",
-    "@types/chai": "^4.3.13",
-    "chai": "^4.3.7",
-    "mocha": "^10.0.0",
-    "npm-run-all": "^4.1.5",
-    "rimraf": "^3.0.2",
-    "ts-node": "^10.9.2",
-    "typechain": "^8.3.2",
-    "typescript": "^4.1.5",
-    "@types/inquirer": "^9.0.3",
+    "@flarenetwork/prettier-config-flare": "^0.0.2",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-ethers": "^3.0.6",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
@@ -51,15 +41,28 @@
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-truffle5": "^2.0.7",
     "@nomiclabs/hardhat-web3": "^2.0.0",
+    "@openzeppelin/contracts": "5.0.2",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@typechain/truffle-v5": "^8.0.7",
     "@typechain/web3-v1": "^6.0.7",
-    "@istanbuljs/nyc-config-typescript": "^1.0.2",
-    "nyc": "^15.1.0",
+    "@types/chai": "^4.3.13",
+    "@types/inquirer": "^9.0.3",
+    "@types/lodash": "^4.14.186",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^16.11.15",
+    "chai": "^4.3.7",
     "hardhat": "2.22.6",
-    "@openzeppelin/contracts": "5.0.2"
+    "mocha": "^10.0.0",
+    "npm-run-all": "^4.1.5",
+    "nyc": "^15.1.0",
+    "prettier": "^3.7.4",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^4.1.5"
   },
+  "prettier": "@flarenetwork/prettier-config-flare",
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
     "check-coverage": true,

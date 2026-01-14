@@ -4,19 +4,19 @@ import * as dotenv from "dotenv";
 dotenv.config({ quiet: true });
 
 const COSTON_CONFIG: NetworkContractAddresses = {
-  FlareSystemsManager: { name: "FlareSystemsManager", address: "0x85680Dd93755Fe5d0789773fd0896cEE51F9e358" }
+  FlareSystemsManager: { name: "FlareSystemsManager", address: "0x85680Dd93755Fe5d0789773fd0896cEE51F9e358" },
 };
 
 const COSTON2_CONFIG: NetworkContractAddresses = {
-  FlareSystemsManager: { name: "FlareSystemsManager", address: "0xbC1F76CEB521Eb5484b8943B5462D08ea96617A1" }
+  FlareSystemsManager: { name: "FlareSystemsManager", address: "0xbC1F76CEB521Eb5484b8943B5462D08ea96617A1" },
 };
 
 const SONGBIRD_CONFIG: NetworkContractAddresses = {
-  FlareSystemsManager: { name: "FlareSystemsManager", address: "0x421c69E22f48e14Fc2d2Ee3812c59bfb81c38516" }
+  FlareSystemsManager: { name: "FlareSystemsManager", address: "0x421c69E22f48e14Fc2d2Ee3812c59bfb81c38516" },
 };
 
 const FLARE_CONFIG: NetworkContractAddresses = {
-  FlareSystemsManager: { name: "FlareSystemsManager", address: "0x89e50DC0380e597ecE79c8494bAAFD84537AD0D4" }
+  FlareSystemsManager: { name: "FlareSystemsManager", address: "0x89e50DC0380e597ecE79c8494bAAFD84537AD0D4" },
 };
 
 const COSTON_RPC = "https://coston-api.flare.network/ext/bc/C/rpc";
@@ -38,7 +38,7 @@ const contracts = () => {
     case "flare":
       return FLARE_CONFIG;
     default:
-      ((_: never): void => { })(network);
+      ((_: never): void => {})(network);
   }
 };
 
@@ -54,10 +54,9 @@ const rpc = () => {
     case "flare":
       return process.env.FLARE_RPC || FLARE_RPC;
     default:
-      ((_: never): void => { })(network);
+      ((_: never): void => {})(network);
   }
 };
-
 
 export const CONTRACTS = () => contracts();
 export const RPC = () => rpc();

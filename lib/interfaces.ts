@@ -1,14 +1,14 @@
 export interface IRewardDistributionData {
-    rewardEpochId: number;
-    rewardClaims: IRewardClaimWithProof[];
-    noOfWeightBasedClaims: number;
-    merkleRoot: string;
-    abi: any;
-  }
+  rewardEpochId: number;
+  rewardClaims: IRewardClaimWithProof[];
+  noOfWeightBasedClaims: number;
+  merkleRoot: string;
+  abi: any;
+}
 
 interface IRewardClaimWithProof {
-    merkleProof: string[];
-    body: IRewardClaim;
+  merkleProof: string[];
+  body: IRewardClaim;
 }
 
 interface IMergeableRewardClaim {

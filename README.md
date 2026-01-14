@@ -6,10 +6,12 @@
 
 Tool for signing uptime vote and rewards in Flare Systems Protocol.
 
-##  Config file
+## Config file
+
 NOTE: Ensure that you work in a secure environment (server).
 
 Create an environment file (`.env`) with the following content (see [template](.env_template)):
+
 - `SIGNING_POLICY_PRIVATE_KEY` - Private key of the signing policy address. Private key should be prefixed with `0x`.
 - `NETWORK` - Network on which to sign (`flare`, `songbird`, `coston`, `coston2`).
 - `PRIVATE_KEY` - Private key of the address that will be used to send transactions (recommended not to be the same as `SIGNING_POLICY_PRIVATE_KEY` to avoid nonce issues since the signing policy address is used for finalizations by [Flare Systems Client](https://github.com/flare-foundation/flare-system-client)). Recommended to use a private key, distinct of any data provider entity keys, specifically used for sending transactions and paying gas. Private key should be prefixed with `0x`.
@@ -21,12 +23,16 @@ A data provider is encouraged to use more advanced approaches like cloud key man
 ## Build the tool
 
 Required Node.js versions are 22.x.x or higher.
+
 - Clone the repo.
 - Install dependencies:
+
 ```bash
 yarn
 ```
+
 - Build the tool:
+
 ```bash
 yarn build
 ```
@@ -50,6 +56,7 @@ bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>
 ## Signing status check
 
 Checks the signing status for both uptime vote and reward
+
 ```bash
 bin/signing-tool status --first-reward-epoch-id <reward_epoch_id>
 ```
@@ -60,6 +67,7 @@ The tool communicates with [`FlareSystemsManager`](https://gitlab.com/flarenetwo
 The part of the protocol immediately after the end of each reward epoch includes voting for uptime and voting for rewards by data providers that held voting weight in the reward epoch.
 
 The tool handles two actions:
+
 - signing and sending Merkle root for up time voting,
 - signing and sending Merkle root for the reward distribution.
 
@@ -72,5 +80,3 @@ In current deployments uptime voting is not fully supported and used. But since 
 ### Reward distribution voting
 
 Currently Flare calculates rewards using the [reward calculation algorithm](https://github.com/flare-foundation/FTSO-Scaling/blob/main/scripts/rewards/README.md) and publishes the [results](https://github.com/flare-foundation/fsp-rewards/tree/main/). If data providers agree on those results they can sign them using the Signing tool as described above. The method [signRewards](https://github.com/flare-foundation/flare-smart-contracts-v2/blob/main/contracts/protocol/implementation/FlareSystemsManager.sol#L504) is used on `FlareSystemsManager` smart contract.
-
-

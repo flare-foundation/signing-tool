@@ -9,7 +9,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config({ quiet: true });
 
-let fs = require('fs');
+let fs = require("fs");
 
 // Config
 let accounts = [
@@ -36,7 +36,7 @@ let accounts = [
   //   0x0a057a7172d0466aef80976d7e8c80647dfd35e3
   //   0x68dfc526037e9030c8f813d014919cc89e7d4d74
   //   0x26c43a1d431a4e5ee86cd55ed7ef9edf3641e901
-  ...JSON.parse(fs.readFileSync('test/test-1020-accounts.json'))
+  ...JSON.parse(fs.readFileSync("test/test-1020-accounts.json")),
 ];
 
 const config: HardhatUserConfig = {

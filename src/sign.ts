@@ -2,7 +2,7 @@ import Web3 from "web3";
 import { ECDSASignature } from "../lib/ECDSASignature";
 import { IRewardDistributionData } from "../lib/interfaces";
 import { ZERO_BYTES32, networks } from "../configs/networks";
-import axios from 'axios';
+import axios from "axios";
 import * as dotenv from "dotenv";
 import { initializeFlareSystemsManager } from "../lib/initialize";
 import { round } from "./utils";
@@ -21,7 +21,7 @@ export async function getRewardCalculationDataPath(rewardEpochId: number) {
     case "flare":
       return `https://raw.githubusercontent.com/flare-foundation/fsp-rewards/refs/heads/main/flare/${rewardEpochId}/reward-distribution-data.json`;
     default:
-      ((_: never): void => { })(network);
+      ((_: never): void => {})(network);
   }
 }
 
@@ -31,7 +31,7 @@ export async function getUptimeVoteHash(web3: Web3): Promise<string> {
 }
 
 export async function getRewardsData(rewardEpochId: number): Promise<[string, number]> {
-  const path = await getRewardCalculationDataPath(rewardEpochId) as any;
+  const path = (await getRewardCalculationDataPath(rewardEpochId)) as any;
   if (path === undefined) {
     throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
   }
@@ -42,12 +42,14 @@ export async function getRewardsData(rewardEpochId: number): Promise<[string, nu
   return [rewardsHash, noOfWeightBasedClaims];
 }
 
-export async function signUptimeVote(web3: Web3, flareSystemsManagerAddress: string, rewardEpochId: number, fakeVoteHash: string) {
-
+export async function signUptimeVote(
+  web3: Web3,
+  flareSystemsManagerAddress: string,
+  rewardEpochId: number,
+  fakeVoteHash: string
+) {
   if (!process.env.PRIVATE_KEY || !process.env.SIGNING_POLICY_PRIVATE_KEY) {
-    throw new Error(
-      "PRIVATE_KEY and SIGNING_POLICY_PRIVATE_KEY env variables are required."
-    );
+    throw new Error("PRIVATE_KEY and SIGNING_POLICY_PRIVATE_KEY env variables are required.");
   }
   const signingPrivateKey = process.env.SIGNING_POLICY_PRIVATE_KEY;
   const senderPrivateKey = process.env.PRIVATE_KEY;
@@ -63,7 +65,7 @@ export async function signUptimeVote(web3: Web3, flareSystemsManagerAddress: str
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
   const gasPriceMultiplier = process.env.GAS_PRICE_MULTIPLIER ? round(Number(process.env.GAS_PRICE_MULTIPLIER), 2) : 10;
-  gasPrice = gasPrice * BigInt(gasPriceMultiplier * 100) / 100n;
+  gasPrice = (gasPrice * BigInt(gasPriceMultiplier * 100)) / 100n;
   const tx = {
     from: wallet.address,
     to: flareSystemsManagerAddress,
@@ -76,10 +78,11 @@ export async function signUptimeVote(web3: Web3, flareSystemsManagerAddress: str
   try {
     const receipt = await web3.eth.sendSignedTransaction(signed.rawTransaction);
     console.log(`Uptime vote for epoch ${rewardEpochId} from ${wallet.address} sent`);
-  }
-  catch (e: any) {
+  } catch (e: any) {
     if ("innerError" in e && e.innerError != undefined && "message" in e.innerError) {
-      console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e.innerError.message}`);
+      console.error(
+        `Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e.innerError.message}`
+      );
     } else if ("reason" in e && e.reason != undefined) {
       console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e.reason}`);
     } else {
@@ -89,12 +92,15 @@ export async function signUptimeVote(web3: Web3, flareSystemsManagerAddress: str
   }
 }
 
-export async function signRewards(web3: Web3, flareSystemsManagerAddress: string, rewardEpochId: number, rewardsHash: string, noOfWeightBasedClaims: number) {
-
+export async function signRewards(
+  web3: Web3,
+  flareSystemsManagerAddress: string,
+  rewardEpochId: number,
+  rewardsHash: string,
+  noOfWeightBasedClaims: number
+) {
   if (!process.env.PRIVATE_KEY || !process.env.SIGNING_POLICY_PRIVATE_KEY) {
-    throw new Error(
-      "PRIVATE_KEY and SIGNING_POLICY_PRIVATE_KEY env variables are required."
-    );
+    throw new Error("PRIVATE_KEY and SIGNING_POLICY_PRIVATE_KEY env variables are required.");
   }
 
   const signingPrivateKey = process.env.SIGNING_POLICY_PRIVATE_KEY;
@@ -114,16 +120,13 @@ export async function signRewards(web3: Web3, flareSystemsManagerAddress: string
 
   const noOfWeightBasedClaimsHash = web3.utils.keccak256(noOfWeightBasedClaimsEncoded);
   const message =
-    "0x" +
-    rewardEpochId.toString(16).padStart(64, "0") +
-    noOfWeightBasedClaimsHash.slice(2) +
-    rewardsHash.slice(2);
+    "0x" + rewardEpochId.toString(16).padStart(64, "0") + noOfWeightBasedClaimsHash.slice(2) + rewardsHash.slice(2);
   const messageHash = web3.utils.keccak256(message);
   const signature = await ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
   const gasPriceMultiplier = process.env.GAS_PRICE_MULTIPLIER ? round(Number(process.env.GAS_PRICE_MULTIPLIER), 2) : 10;
-  gasPrice = gasPrice * BigInt(gasPriceMultiplier * 100) / 100n;
+  gasPrice = (gasPrice * BigInt(gasPriceMultiplier * 100)) / 100n;
   const tx = {
     from: wallet.address,
     to: flareSystemsManagerAddress,
@@ -139,10 +142,14 @@ export async function signRewards(web3: Web3, flareSystemsManagerAddress: string
     const receipt = await web3.eth.sendSignedTransaction(signed.rawTransaction);
     console.log(`Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address} sent`);
   } catch (e: any) {
-     if ("innerError" in e && e.innerError != undefined && "message" in e.innerError) {
-      console.error(`Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e.innerError.message}`);
+    if ("innerError" in e && e.innerError != undefined && "message" in e.innerError) {
+      console.error(
+        `Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e.innerError.message}`
+      );
     } else if ("reason" in e && e.reason != undefined) {
-      console.error(`Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e.reason}`);
+      console.error(
+        `Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e.reason}`
+      );
     } else {
       console.error(`Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e}`);
       console.dir(e);

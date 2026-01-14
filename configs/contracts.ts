@@ -5,11 +5,9 @@ interface FlareSystemsManagerDefinition {
   address: ContractAddress;
 }
 
-export type ContractDefinitions =
-  | FlareSystemsManagerDefinition;
+export type ContractDefinitions = FlareSystemsManagerDefinition;
 
-export type ContractDefinitionsNames =
-  | FlareSystemsManagerDefinition["name"];
+export type ContractDefinitionsNames = FlareSystemsManagerDefinition["name"];
 
 export interface NetworkContractAddresses {
   FlareSystemsManager: FlareSystemsManagerDefinition;

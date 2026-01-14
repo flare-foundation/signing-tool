@@ -10,11 +10,5 @@
     "resolveJsonModule": true,
     "outDir": "./dist"
   },
-  "include": [
-    "src/**/*",
-    "./typechain-web3-v1",
-     "lib/ECDSASignature.ts",
-     "lib/interfaces.ts",
-     "lib/initialize.ts"
-  ]
+  "include": ["src/**/*", "./typechain-web3-v1", "lib/ECDSASignature.ts", "lib/interfaces.ts", "lib/initialize.ts"]
 }
