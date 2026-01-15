@@ -3,16 +3,17 @@ import "@nomiclabs/hardhat-truffle5";
 import "@nomiclabs/hardhat-web3";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomicfoundation/hardhat-web3-v4";
+import "ts-node/register/transpile-only";
 
 import { HardhatUserConfig } from "hardhat/config";
 import * as dotenv from "dotenv";
+import fs from "fs";
+import { HardhatNetworkAccountUserConfig } from "hardhat/types/config";
 
 dotenv.config({ quiet: true });
 
-let fs = require("fs");
-
 // Config
-let accounts = [
+const accounts = [
   // In Truffle, default account is always the first one.
   // First 20 accounts with 10^14 NAT each
   // Addresses:
@@ -36,7 +37,7 @@ let accounts = [
   //   0x0a057a7172d0466aef80976d7e8c80647dfd35e3
   //   0x68dfc526037e9030c8f813d014919cc89e7d4d74
   //   0x26c43a1d431a4e5ee86cd55ed7ef9edf3641e901
-  ...JSON.parse(fs.readFileSync("test/test-1020-accounts.json")),
+  ...(JSON.parse(fs.readFileSync("test/test-1020-accounts.json").toString()) as HardhatNetworkAccountUserConfig[]),
 ];
 
 const config: HardhatUserConfig = {
@@ -78,39 +79,38 @@ const config: HardhatUserConfig = {
   mocha: {
     timeout: 100000000,
   },
-
   defaultNetwork: "hardhat",
 
   networks: {
     scdev: {
       url: process.env.SCDEV_RPC || "http://127.0.0.1:9650/ext/bc/C/rpc",
       timeout: 40000,
-      accounts: accounts.map((x: any) => x.privateKey),
+      accounts: accounts.map((x) => x.privateKey),
     },
     staging: {
       url: process.env.STAGING_RPC || "http://127.0.0.1:9650/ext/bc/C/rpc",
       timeout: 40000,
-      accounts: accounts.map((x: any) => x.privateKey),
+      accounts: accounts.map((x) => x.privateKey),
     },
     songbird: {
       url: process.env.SONGBIRD_RPC || "https://songbird-api.flare.network/ext/C/rpc",
       timeout: 40000,
-      accounts: accounts.map((x: any) => x.privateKey),
+      accounts: accounts.map((x) => x.privateKey),
     },
     flare: {
       url: process.env.FLARE_RPC || "https://flare-api.flare.network/ext/C/rpc",
       timeout: 40000,
-      accounts: accounts.map((x: any) => x.privateKey),
+      accounts: accounts.map((x) => x.privateKey),
     },
     coston: {
       url: process.env.COSTON_RPC || "https://coston-api.flare.network/ext/C/rpc",
       timeout: 40000,
-      accounts: accounts.map((x: any) => x.privateKey),
+      accounts: accounts.map((x) => x.privateKey),
     },
     coston2: {
       url: process.env.COSTON2_RPC || "https://coston2-api.flare.network/ext/C/rpc",
       timeout: 40000,
-      accounts: accounts.map((x: any) => x.privateKey),
+      accounts: accounts.map((x) => x.privateKey),
     },
     hardhat: {
       accounts,

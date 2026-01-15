@@ -2,8 +2,8 @@
   "compilerOptions": {
     "outDir": "./dist",
 
-    "target": "esnext",
-    "module": "nodenext",
+    "target": "es2022",
+    "module": "commonjs",
 
     // Other Outputs
     "sourceMap": true,
@@ -16,7 +16,7 @@
     "strictNullChecks": true,
 
     // Javascript
-    "allowJs":true,
+    "allowJs": true,
 
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -26,7 +26,7 @@
     "strict": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
-  "include": ["src/**/*", "./typechain-web3-v1", "lib/ECDSASignature.ts", "lib/interfaces.ts", "lib/initialize.ts"]
+  "include": ["src/**/*", "test/**/*", "./typechain-web3-v1", "lib/**/*", "hardhat.config.ts"]
 }

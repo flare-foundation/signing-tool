@@ -4,7 +4,6 @@
   "description": "Flare Systems Protocol uptime and rewards signing tool",
   "license": "MIT",
   "author": "Flare Network",
-  "type": "module",
   "bin": {
     "signing-tool": "bin/signing-tool"
   },
@@ -12,7 +11,11 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "build": "rimraf dist/ && yarn tsc -b",
+    "build": "rimraf dist/ && yarn tsc -p tsconfig.build.json",
+    "typecheck": "yarn tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "prettier:check": "prettier --check .",
+    "prettier:fix": "prettier --write .",
     "sign": "yarn ts-node src/sign.ts",
     "---------COMPILE---SCRIPTS": "",
     "compile": "yarn hardhat compile && yarn typechain-ethers-v6 && yarn typechain-truffle-v5 && yarn typechain-web3-v1",
@@ -25,7 +28,7 @@
   },
   "dependencies": {
     "axios": "^1.6.5",
-    "chalk": "^5.3.0",
+    "chalk": "^4.0.0",
     "commander": "^9.4.1",
     "dotenv": "^17.0.0",
     "inquirer": "^8.0.0",
@@ -51,7 +54,7 @@
     "@typechain/truffle-v5": "^8.0.7",
     "@typechain/web3-v1": "^6.0.7",
     "@types/chai": "^4.3.13",
-    "@types/inquirer": "^9.0.3",
+    "@types/inquirer": "^8.0.0",
     "@types/lodash": "^4.14.186",
     "@types/mocha": "^10.0.0",
     "@types/node": "^16.11.15",

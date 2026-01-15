@@ -10,7 +10,7 @@ export namespace ECDSASignature {
   /**
    * Signs message hash with ECDSA using private key
    */
-  export async function signMessageHash(messageHash: string, privateKey: string): Promise<IECDSASignature> {
+  export function signMessageHash(messageHash: string, privateKey: string): IECDSASignature {
     if (!/^0x[0-9a-f]{64}$/i.test(privateKey)) {
       throw Error(`Invalid private key format`);
     }

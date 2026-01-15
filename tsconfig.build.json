@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*", "./typechain-web3-v1", "lib/**/*"],
+}

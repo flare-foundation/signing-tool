@@ -15,11 +15,11 @@ export const prompts = {
         ),
         choices: ["Yes", "No"],
         filter: (val: string) => {
-          return val == "Yes" ? true : false;
+          return val === "Yes" ? true : false;
         },
       },
     ];
-    return inquirer.prompt(questions);
+    return inquirer.prompt(questions) as Promise<{ continueUptimeVote: boolean }>;
   },
   continueRewards: async (rewardEpochId: number, hash: string, noOfWeightBasedClaims: number) => {
     const questions = [
@@ -31,10 +31,10 @@ export const prompts = {
         ),
         choices: ["Yes", "No"],
         filter: (val: string) => {
-          return val == "Yes" ? true : false;
+          return val === "Yes" ? true : false;
         },
       },
     ];
-    return inquirer.prompt(questions);
+    return inquirer.prompt(questions) as Promise<{ continueRewards: boolean }>;
   },
 };

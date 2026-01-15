@@ -1,15 +1,15 @@
-import { Web3}  from "web3";
-import { ECDSASignature } from "../lib/ECDSASignature.js";
-import { IRewardDistributionData } from "../lib/interfaces.js";
-import { ZERO_BYTES32, networks } from "../configs/networks.js";
+import { Web3 } from "web3";
+import { ECDSASignature } from "../lib/ECDSASignature";
+import { IRewardDistributionData } from "../lib/interfaces";
+import { ZERO_BYTES32, networks } from "../configs/networks";
 import axios from "axios";
 import * as dotenv from "dotenv";
-import { initializeFlareSystemsManager } from "../lib/initialize.js";
-import { round } from "./utils.js";
+import { initializeFlareSystemsManager } from "../lib/initialize";
+import { round } from "./utils";
 
 dotenv.config({ quiet: true });
 
-export async function getRewardCalculationDataPath(rewardEpochId: number) {
+export function getRewardCalculationDataPath(rewardEpochId: number) {
   const network = process.env.NETWORK as networks;
   switch (network) {
     case "coston2":
@@ -25,18 +25,18 @@ export async function getRewardCalculationDataPath(rewardEpochId: number) {
   }
 }
 
-export async function getUptimeVoteHash(web3: Web3): Promise<string> {
+export function getUptimeVoteHash(web3: Web3): string {
   // fake vote hash
   return web3.utils.keccak256(ZERO_BYTES32);
 }
 
 export async function getRewardsData(rewardEpochId: number): Promise<[string, number]> {
-  const path = (await getRewardCalculationDataPath(rewardEpochId)) as any;
+  const path = getRewardCalculationDataPath(rewardEpochId);
   if (path === undefined) {
     throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
   }
   const response = await axios.get(path);
-  const data: IRewardDistributionData = response.data;
+  const data: IRewardDistributionData = response.data as IRewardDistributionData;
   const rewardsHash: string = data.merkleRoot;
   const noOfWeightBasedClaims: number = data.noOfWeightBasedClaims;
   return [rewardsHash, noOfWeightBasedClaims];
@@ -54,14 +54,14 @@ export async function signUptimeVote(
   const signingPrivateKey = process.env.SIGNING_POLICY_PRIVATE_KEY;
   const senderPrivateKey = process.env.PRIVATE_KEY;
 
-  const flareSystemsManager = await initializeFlareSystemsManager(web3, flareSystemsManagerAddress);
+  const flareSystemsManager = initializeFlareSystemsManager(web3, flareSystemsManagerAddress);
 
   const wallet = web3.eth.accounts.privateKeyToAccount(senderPrivateKey);
   console.log(`Sending uptime vote for epoch ${rewardEpochId} from ${wallet.address}`);
 
   const message = "0x" + rewardEpochId.toString(16).padStart(64, "0") + fakeVoteHash.slice(2);
   const messageHash = web3.utils.keccak256(message);
-  const signature = await ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
+  const signature = ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
   const gasPriceMultiplier = process.env.GAS_PRICE_MULTIPLIER ? round(Number(process.env.GAS_PRICE_MULTIPLIER), 2) : 10;
@@ -76,17 +76,25 @@ export async function signUptimeVote(
   };
   const signed = await wallet.signTransaction(tx);
   try {
-    const receipt = await web3.eth.sendSignedTransaction(signed.rawTransaction);
+    const _receipt = await web3.eth.sendSignedTransaction(signed.rawTransaction);
     console.log(`Uptime vote for epoch ${rewardEpochId} from ${wallet.address} sent`);
-  } catch (e: any) {
-    if ("innerError" in e && e.innerError != undefined && "message" in e.innerError) {
+  } catch (e: unknown) {
+    if (
+      e &&
+      typeof e === "object" &&
+      "innerError" in e &&
+      e.innerError &&
+      typeof e.innerError === "object" &&
+      "message" in e.innerError &&
+      typeof e.innerError.message === "string"
+    ) {
       console.error(
         `Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e.innerError.message}`
       );
-    } else if ("reason" in e && e.reason != undefined) {
+    } else if (typeof e === "object" && e !== null && "reason" in e && typeof e.reason === "string") {
       console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e.reason}`);
     } else {
-      console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e}`);
+      console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${String(e)}`);
       console.dir(e);
     }
   }
@@ -106,7 +114,7 @@ export async function signRewards(
   const signingPrivateKey = process.env.SIGNING_POLICY_PRIVATE_KEY;
   const senderPrivateKey = process.env.PRIVATE_KEY;
 
-  const flareSystemsManager = await initializeFlareSystemsManager(web3, flareSystemsManagerAddress);
+  const flareSystemsManager = initializeFlareSystemsManager(web3, flareSystemsManagerAddress);
 
   const wallet = web3.eth.accounts.privateKeyToAccount(senderPrivateKey);
   console.log(`Sending Merkle root for epoch ${rewardEpochId} from ${wallet.address}`);
@@ -122,7 +130,7 @@ export async function signRewards(
   const message =
     "0x" + rewardEpochId.toString(16).padStart(64, "0") + noOfWeightBasedClaimsHash.slice(2) + rewardsHash.slice(2);
   const messageHash = web3.utils.keccak256(message);
-  const signature = await ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
+  const signature = ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
   const gasPriceMultiplier = process.env.GAS_PRICE_MULTIPLIER ? round(Number(process.env.GAS_PRICE_MULTIPLIER), 2) : 10;
@@ -130,28 +138,41 @@ export async function signRewards(
   const tx = {
     from: wallet.address,
     to: flareSystemsManagerAddress,
-    data: flareSystemsManager.methods
-      .signRewards!(rewardEpochId, noOfWeightBasedClaimsAndId, rewardsHash, signature)
-      .encodeABI(),
+    data: flareSystemsManager.methods.signRewards!(
+      rewardEpochId,
+      noOfWeightBasedClaimsAndId,
+      rewardsHash,
+      signature
+    ).encodeABI(),
     gas: "500000",
     gasPrice,
     nonce: Number(nonce).toString(),
   };
   const signed = await wallet.signTransaction(tx);
   try {
-    const receipt = await web3.eth.sendSignedTransaction(signed.rawTransaction);
+    const _receipt = await web3.eth.sendSignedTransaction(signed.rawTransaction);
     console.log(`Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address} sent`);
-  } catch (e: any) {
-    if ("innerError" in e && e.innerError != undefined && "message" in e.innerError) {
+  } catch (e: unknown) {
+    if (
+      e &&
+      typeof e === "object" &&
+      "innerError" in e &&
+      e.innerError &&
+      typeof e.innerError === "object" &&
+      "message" in e.innerError &&
+      typeof e.innerError.message === "string"
+    ) {
       console.error(
         `Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e.innerError.message}`
       );
-    } else if ("reason" in e && e.reason != undefined) {
+    } else if (typeof e === "object" && e !== null && "reason" in e && typeof e.reason === "string") {
       console.error(
         `Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e.reason}`
       );
     } else {
-      console.error(`Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${e}`);
+      console.error(
+        `Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${String(e)}`
+      );
       console.dir(e);
     }
   }

@@ -1,9 +1,11 @@
+import { ContractAbi } from "web3";
+
 export interface IRewardDistributionData {
   rewardEpochId: number;
   rewardClaims: IRewardClaimWithProof[];
   noOfWeightBasedClaims: number;
   merkleRoot: string;
-  abi: any;
+  abi: ContractAbi;
 }
 
 interface IRewardClaimWithProof {
