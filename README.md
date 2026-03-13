@@ -40,13 +40,13 @@ Required Node.js versions are 24.x.x or higher.
 - Install dependencies:
 
 ```bash
-yarn
+pnpm install
 ```
 
 - Build the tool:
 
 ```bash
-yarn build
+pnpm build
 ```
 
 ## Signing uptime vote

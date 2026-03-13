@@ -7,18 +7,20 @@ lint:
   stage: check
   image: node:24
   before_script:
-    - yarn install --frozen-lockfile
+    - corepack enable pnpm
+    - pnpm install --frozen-lockfile
   script:
-    - yarn lint:check
-    - yarn format:check
+    - pnpm lint:check
+    - pnpm format:check
 
 test:
   stage: test
   image: node:24
   before_script:
-    - yarn install --frozen-lockfile
+    - corepack enable pnpm
+    - pnpm install --frozen-lockfile
   script:
-    - yarn test:coverage
+    - pnpm test:coverage
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:
     when: always
@@ -33,6 +35,7 @@ build:
   stage: build
   image: node:24
   before_script:
-    - yarn install --frozen-lockfile
+    - corepack enable pnpm
+    - pnpm install --frozen-lockfile
   script:
-    - yarn build
+    - pnpm build

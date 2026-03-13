@@ -1,8 +1,7 @@
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-truffle5";
-import "@nomiclabs/hardhat-web3";
+import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomicfoundation/hardhat-web3-v4";
+import "@typechain/hardhat";
 import "ts-node/register/transpile-only";
 
 import { HardhatUserConfig } from "hardhat/config";
@@ -14,7 +13,6 @@ dotenv.config({ quiet: true });
 
 // Config
 const accounts = [
-  // In Truffle, default account is always the first one.
   // First 20 accounts with 10^14 NAT each
   // Addresses:
   //   0xc783df8a850f42e7f7e57013759c285caa701eb6

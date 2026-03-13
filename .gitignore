@@ -12,5 +12,6 @@ nul
 typechain
 typechain-truffle
 typechain-web3
+typechain-types
 
 cache

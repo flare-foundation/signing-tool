@@ -9,30 +9,30 @@ import {
   signUptimeVote,
 } from "../src/sign";
 import { CONTRACTS, RPC, ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks";
-import { FlareSystemsManagerMockContract, FlareSystemsManagerMockInstance } from "../typechain-truffle/index";
 import { ECDSASignature } from "../lib/ECDSASignature";
 import { getEpochRange, getStatus } from "../src/status";
 import { EventEmitter } from "events";
 import fs from "fs";
-import { Web3 } from "web3";
+import { ethers } from "hardhat";
+import { FlareSystemsManagerMock } from "../typechain/FlareSystemsManagerMock";
 // increase max listeners to prevent warning
 EventEmitter.defaultMaxListeners = 20;
 
-// Declare Hardhat-provided global `web3` for TypeScript
+// Declare Hardhat-provided global `web3` (from @nomicfoundation/hardhat-web3-v4)
 declare const web3: any;
-declare const artifacts: any;
-declare function contract(name: string, fn: (accounts: any) => Promise<void>): void;
-
-const FlareSystemsManagerMock: FlareSystemsManagerMockContract = artifacts.require("FlareSystemsManagerMock");
 
 //// Before running these tests comment local .env file
-contract(`Signing tool test; ${getTestFile(__filename)}`, async (accounts) => {
+describe(`Signing tool test; ${getTestFile(__filename)}`, () => {
+  let fsmMock: FlareSystemsManagerMock;
+  let accounts: string[];
+
   beforeEach(async () => {
     process.env.NETWORK = "coston";
-    fsmMock = await FlareSystemsManagerMock.new();
+    const signers = await ethers.getSigners();
+    accounts = signers.map((s) => s.address);
+    const factory = await ethers.getContractFactory("FlareSystemsManagerMock");
+    fsmMock = (await factory.deploy()) as unknown as FlareSystemsManagerMock;
   });
-
-  let fsmMock: FlareSystemsManagerMockInstance;
 
   describe("Initialize Web3", () => {
     it("Should initialize RPC", async () => {
@@ -73,11 +73,12 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async (accounts) => {
       process.env.PRIVATE_KEY = privateKeys[0].privateKey;
       process.env.SIGNING_POLICY_PRIVATE_KEY = privateKeys[1].privateKey;
 
+      const mockAddress = await fsmMock.getAddress();
       let signedHash = await fsmMock.voterUptimeVoteHash(0, accounts[1]);
       expect(signedHash).to.eq(ZERO_BYTES32);
 
       const uptimeVoteHash = getUptimeVoteHash(web3);
-      await signUptimeVote(web3, fsmMock.address, 0, uptimeVoteHash);
+      await signUptimeVote(web3, mockAddress, 0, uptimeVoteHash);
       signedHash = await fsmMock.voterUptimeVoteHash(0, accounts[1]);
       expect(signedHash).to.eq(uptimeVoteHash);
     });
@@ -87,11 +88,12 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async (accounts) => {
       process.env.PRIVATE_KEY = privateKeys[0].privateKey;
       process.env.SIGNING_POLICY_PRIVATE_KEY = privateKeys[1].privateKey;
 
+      const mockAddress = await fsmMock.getAddress();
       const uptimeVoteHash = getUptimeVoteHash(web3);
-      await signUptimeVote(web3, fsmMock.address, 0, uptimeVoteHash);
+      await signUptimeVote(web3, mockAddress, 0, uptimeVoteHash);
 
       // vote again
-      await signUptimeVote(web3, fsmMock.address, 0, uptimeVoteHash);
+      await signUptimeVote(web3, mockAddress, 0, uptimeVoteHash);
     });
   });
 
@@ -167,11 +169,12 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async (accounts) => {
       process.env.PRIVATE_KEY = privateKeys[0].privateKey;
       process.env.SIGNING_POLICY_PRIVATE_KEY = privateKeys[1].privateKey;
 
+      const mockAddress = await fsmMock.getAddress();
       let signedHash = await fsmMock.voterRewardsHash(3, accounts[1]);
       expect(signedHash).to.eq(ZERO_BYTES32);
 
       const rewardsHash = web3.utils.keccak256("rewards hash");
-      await signRewards(web3, fsmMock.address, 3, rewardsHash, 56);
+      await signRewards(web3, mockAddress, 3, rewardsHash, 56);
       signedHash = await fsmMock.voterRewardsHash(3, accounts[1]);
       expect(signedHash).to.eq(rewardsHash);
     });
@@ -181,11 +184,12 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async (accounts) => {
       process.env.PRIVATE_KEY = privateKeys[0].privateKey;
       process.env.SIGNING_POLICY_PRIVATE_KEY = privateKeys[1].privateKey;
 
+      const mockAddress = await fsmMock.getAddress();
       const rewardsHash = web3.utils.keccak256("rewards hash");
-      await signRewards(web3, fsmMock.address, 3, rewardsHash, 56);
+      await signRewards(web3, mockAddress, 3, rewardsHash, 56);
 
       // vote again
-      await signRewards(web3, fsmMock.address, 3, rewardsHash, 56);
+      await signRewards(web3, mockAddress, 3, rewardsHash, 56);
     });
   });
 
@@ -218,7 +222,8 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async (accounts) => {
       expect(firstRewardEpochId).to.eq(26);
       expect(lastRewardEpochId).to.eq(30);
 
-      await getStatus(web3, fsmMock.address, NaN);
+      const mockAddress = await fsmMock.getAddress();
+      await getStatus(web3, mockAddress, NaN);
     });
 
     it("Should get first and last epochs if epoch ID is provided", async () => {
@@ -227,8 +232,9 @@ contract(`Signing tool test; ${getTestFile(__filename)}`, async (accounts) => {
       expect(firstRewardEpochId).to.eq(18);
       expect(lastRewardEpochId).to.eq(30);
 
+      const mockAddress = await fsmMock.getAddress();
       await fsmMock.setHashes(18, web3.utils.keccak256("hash1"), web3.utils.keccak256("hash2"));
-      await getStatus(web3, fsmMock.address, 18);
+      await getStatus(web3, mockAddress, 18);
     });
   });
 

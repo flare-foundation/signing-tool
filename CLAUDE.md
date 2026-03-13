@@ -5,26 +5,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Development Commands
 
 ```bash
-yarn install              # Install dependencies
-yarn build                # Compile TypeScript to dist/ (uses tsconfig.build.json, excludes tests)
-yarn typecheck            # Type-check without emitting (uses tsconfig.json, includes tests)
-yarn compile              # Hardhat compile + TypeChain generation (ethers-v6, truffle-v5, web3-v1)
+pnpm install              # Install dependencies
+pnpm build                # Compile TypeScript to dist/ (uses tsconfig.build.json, excludes tests)
+pnpm typecheck            # Type-check without emitting (uses tsconfig.json, includes tests)
+pnpm compile              # Hardhat compile + TypeChain generation (ethers-v6, truffle-v5, web3-v1)
 ```
 
 ## Linting & Formatting
 
 ```bash
-yarn lint:check           # ESLint check
-yarn lint:fix             # ESLint auto-fix
-yarn format:check         # Prettier check
-yarn format:fix           # Prettier auto-fix
+pnpm lint:check           # ESLint check
+pnpm lint:fix             # ESLint auto-fix
+pnpm format:check         # Prettier check
+pnpm format:fix           # Prettier auto-fix
 ```
 
 ## Testing
 
 ```bash
-yarn test                 # Run all tests via Hardhat (Mocha + Chai)
-yarn test:coverage        # Run tests with NYC coverage
+pnpm test                 # Run all tests via Hardhat (Mocha + Chai)
+pnpm test:coverage        # Run tests with NYC coverage
 ```
 
 Tests require Hardhat's local network — there is no way to run a single test file separately since all tests are in `test/signingTool.test.ts`. Use `.only` on individual `describe`/`it` blocks to isolate tests.
@@ -71,4 +71,4 @@ Reward data is fetched from GitHub (`flare-foundation/fsp-rewards`) for mainnet 
 ### Build configurations
 
 - `tsconfig.json` — full project (src, lib, test, hardhat.config.ts)
-- `tsconfig.build.json` — production only (src, lib), used by `yarn build`
+- `tsconfig.build.json` — production only (src, lib), used by `pnpm build`
