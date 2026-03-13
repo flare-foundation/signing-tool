@@ -46,9 +46,8 @@ contract FlareSystemsManagerMock {
                 bytes32(0),
             "already signed"
         );
-        voterUptimeVoteHash[_rewardEpochId][
-            signingPolicyAddress
-        ] = _uptimeVoteHash;
+        voterUptimeVoteHash[_rewardEpochId][signingPolicyAddress] =
+            _uptimeVoteHash;
     }
 
     function signRewards(

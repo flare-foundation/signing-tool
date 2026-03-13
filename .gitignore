@@ -7,6 +7,7 @@ coverage
 nul
 
 .DS_Store
+.claude
 
 typechain
 typechain-truffle

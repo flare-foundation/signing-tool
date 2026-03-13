@@ -1,0 +1,38 @@
+stages:
+  - check
+  - test
+  - build
+
+lint:
+  stage: check
+  image: node:24
+  before_script:
+    - yarn install --frozen-lockfile
+  script:
+    - yarn lint:check
+    - yarn format:check
+
+test:
+  stage: test
+  image: node:24
+  before_script:
+    - yarn install --frozen-lockfile
+  script:
+    - yarn test:coverage
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    when: always
+    paths:
+      - coverage/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+
+build:
+  stage: build
+  image: node:24
+  before_script:
+    - yarn install --frozen-lockfile
+  script:
+    - yarn build

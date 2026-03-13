@@ -1,6 +1,6 @@
 {
   "name": "signing-tool",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Flare Systems Protocol uptime and rewards signing tool",
   "license": "MIT",
   "author": "Flare Network",
@@ -8,22 +8,23 @@
     "signing-tool": "bin/signing-tool"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
-    "build": "rimraf dist/ && yarn tsc -p tsconfig.build.json",
-    "typecheck": "yarn tsc -p tsconfig.json --noEmit",
-    "lint": "eslint .",
-    "prettier:check": "prettier --check .",
-    "prettier:fix": "prettier --write .",
-    "sign": "yarn ts-node src/sign.ts",
+    "build": "rimraf dist/ && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"lib/**/*.ts\" \"configs/**/*.ts\"",
+    "format:fix": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"lib/**/*.ts\" \"configs/**/*.ts\"",
+    "sign": "ts-node src/sign.ts",
     "---------COMPILE---SCRIPTS": "",
-    "compile": "yarn hardhat compile && yarn typechain-ethers-v6 && yarn typechain-truffle-v5 && yarn typechain-web3-v1",
+    "compile": "hardhat compile && yarn typechain-ethers-v6 && yarn typechain-truffle-v5 && yarn typechain-web3-v1",
     "c": "yarn compile",
-    "typechain-ethers-v6": "yarn typechain --target=ethers-v6 --out-dir typechain \"artifacts/!(build-info)/**/+([a-zA-Z0-9_]).json\" 1> nul",
-    "typechain-truffle-v5": "yarn typechain --target=truffle-v5 --out-dir typechain-truffle \"artifacts/!(build-info)/**/+([a-zA-Z0-9_]).json\" 1> nul",
-    "typechain-web3-v1": "yarn typechain --target=web3-v1 --out-dir typechain-web3 \"artifacts/!(build-info)/**/+([a-zA-Z0-9_]).json\" 1> nul",
-    "test:all": "yarn hardhat test 'test/signingTool.test.ts'",
+    "typechain-ethers-v6": "typechain --target=ethers-v6 --out-dir typechain \"artifacts/!(build-info)/**/+([a-zA-Z0-9_]).json\" 1> nul",
+    "typechain-truffle-v5": "typechain --target=truffle-v5 --out-dir typechain-truffle \"artifacts/!(build-info)/**/+([a-zA-Z0-9_]).json\" 1> nul",
+    "typechain-web3-v1": "typechain --target=web3-v1 --out-dir typechain-web3 \"artifacts/!(build-info)/**/+([a-zA-Z0-9_]).json\" 1> nul",
+    "test:all": "hardhat test",
     "test:coverage": "nyc yarn test:all"
   },
   "dependencies": {
@@ -66,10 +67,11 @@
     "npm-run-all": "^4.1.5",
     "nyc": "^15.1.0",
     "prettier": "^3.7.4",
+    "prettier-plugin-solidity": "^2.3.1",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
-    "typescript": "^4.1.5"
+    "typescript": "^5.7.0"
   },
   "prettier": "@flarenetwork/prettier-config-flare",
   "nyc": {

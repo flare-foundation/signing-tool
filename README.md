@@ -1,10 +1,22 @@
-<p align="center">
-  <a href="https://flare.network/" target="blank"><img src="https://content.flare.network/Flare-2.svg" width="410" height="106" alt="Flare Logo" /></a>
-</p>
+<!-- LOGO -->
+
+<div align="center">
+  <a href="https://flare.network/" target="blank">
+    <img src="https://content.flare.network/Flare-2.svg" width="300" alt="Flare Logo" />
+  </a>
+  <br />
+  Tool for signing uptime vote and rewards in Flare Systems Protocol.
+  <br />
+  <a href="#signing-tool">About</a>
+  ·
+  <a href="CONTRIBUTING.md">Contributing</a>
+  ·
+  <a href="SECURITY.md">Security</a>
+  ·
+  <a href="CHANGELOG.md">Changelog</a>
+</div>
 
 # Signing tool
-
-Tool for signing uptime vote and rewards in Flare Systems Protocol.
 
 ## Config file
 
@@ -22,7 +34,7 @@ A data provider is encouraged to use more advanced approaches like cloud key man
 
 ## Build the tool
 
-Required Node.js versions are 22.x.x or higher.
+Required Node.js versions are 24.x.x or higher.
 
 - Clone the repo.
 - Install dependencies:
