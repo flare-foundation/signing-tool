@@ -9,7 +9,7 @@ export function initializeFlareSystemsManager(web3: Web3, flareSystemsManagerAdd
   return new web3.eth.Contract(flareSystemsManagerAbi, flareSystemsManagerAddress);
 }
 
-export function initializeWeb3() {
+export function initializeWeb3(): Web3 {
   if (RPC() === undefined) {
     // should not happen due to checks in RPC()
     throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
