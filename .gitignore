@@ -4,11 +4,14 @@ artifacts
 dist
 coverage
 .nyc_output
+nul
 
 .DS_Store
+.claude
 
 typechain
 typechain-truffle
 typechain-web3
+typechain-types
 
 cache
