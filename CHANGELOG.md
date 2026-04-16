@@ -16,7 +16,7 @@ and this project adheres to
 - Upgraded chai 4 → 5, mocha 10 → 11, inquirer 8 → 12, @types/node 16 → 22
 - Replaced ts-node with tsx
 - Removed TypeChain (incompatible with Hardhat 3 artifact format)
-- Moved nyc config from package.json to `.nycrc.json`
+- Moved nyc config from package.json to `.c8rc.json`; replaced nyc with c8
 - Added `minimumReleaseAge` to pnpm-workspace.yaml (7-day supply chain guard)
 
 ### Removed

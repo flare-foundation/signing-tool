@@ -73,7 +73,7 @@ abi/FlareSystemsManager.json → Contract ABI
 
 1. CLI receives `--reward-epoch-id`
 2. For uptime: hashes zero bytes; for rewards: fetches data from GitHub/GitLab
-3. Constructs message: `rewardEpochId (256-bit padded hex) + hash`
+3. Constructs message: for uptime `rewardEpochId (256-bit padded hex) + uptimeVoteHash`; for rewards `rewardEpochId + noOfWeightBasedClaimsHash + rewardsHash`
 4. Signs with `SIGNING_POLICY_PRIVATE_KEY` via ECDSA
 5. Builds and sends transaction using `PRIVATE_KEY` (separate key for gas)
 

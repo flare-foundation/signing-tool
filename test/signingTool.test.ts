@@ -196,6 +196,11 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
         await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
       });
 
+      it("Should revert if noOfWeightBasedClaims is negative", async () => {
+        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: -1 } })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
+      });
+
       it("Should revert if noOfWeightBasedClaims is not an integer", async () => {
         axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: 5.5 } })) as typeof axios.get;
         await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
@@ -324,15 +329,19 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
     });
 
     it("Should reject non-numeric values", () => {
-      expect(() => parseGasPriceMultiplier("abc")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number");
+      expect(() => parseGasPriceMultiplier("abc")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number up to 100");
     });
 
     it("Should reject zero", () => {
-      expect(() => parseGasPriceMultiplier("0")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number");
+      expect(() => parseGasPriceMultiplier("0")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number up to 100");
     });
 
     it("Should reject negative values", () => {
-      expect(() => parseGasPriceMultiplier("-5")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number");
+      expect(() => parseGasPriceMultiplier("-5")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number up to 100");
+    });
+
+    it("Should reject values above 100", () => {
+      expect(() => parseGasPriceMultiplier("101")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number up to 100");
     });
   });
 

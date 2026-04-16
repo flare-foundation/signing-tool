@@ -8,8 +8,8 @@ export function round(x: number, decimal: number = 0) {
 export function parseGasPriceMultiplier(raw: string | undefined): number {
   if (!raw) return 10;
   const value = Number(raw);
-  if (isNaN(value) || value <= 0) {
-    throw new Error(`GAS_PRICE_MULTIPLIER must be a positive number, got: ${raw}`);
+  if (isNaN(value) || value <= 0 || value > 100) {
+    throw new Error(`GAS_PRICE_MULTIPLIER must be a positive number up to 100, got: ${raw}`);
   }
   return round(value, 2);
 }
