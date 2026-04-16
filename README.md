@@ -59,7 +59,7 @@ bin/signing-tool uptime --reward-epoch-id <reward_epoch_id>
 
 ## Signing rewards
 
-Fetches the reward distribution data from [reward calculation results](https://github.com/flare-foundation/fsp-rewards/tree/main/). It prints out the data and once confirmed it signs them with `SIGNING_POLICY_PRIVATE_KEY` and sends them to `FlareSystemsManager` smart contract.
+Fetches the reward distribution data from [reward calculation results](https://github.com/flare-foundation/fsp-rewards/tree/main/) (mainnet) or [testnet rewards](https://gitlab.com/timivesel/ftsov2-testnet-rewards) (coston/coston2). It prints out the data and once confirmed it signs them with `SIGNING_POLICY_PRIVATE_KEY` and sends them to `FlareSystemsManager` smart contract.
 
 ```bash
 bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>

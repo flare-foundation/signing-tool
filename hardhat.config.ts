@@ -51,26 +51,7 @@ export default defineConfig({
           },
         },
       },
-      {
-        version: "0.7.6",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
-      },
     ],
-    overrides: {
-      "contracts/mock/Imports.sol": {
-        version: "0.6.12",
-        settings: {},
-      },
-      "@gnosis.pm/mock-contract/contracts/MockContract.sol": {
-        version: "0.6.12",
-        settings: {},
-      },
-    },
   },
 
   mocha: {

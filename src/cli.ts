@@ -15,6 +15,15 @@ export function parseRewardEpochId(raw: unknown): number {
   return id;
 }
 
+export function parseOptionalEpochId(raw: unknown): number {
+  if (raw === undefined) return NaN;
+  const id = Number(raw);
+  if (!Number.isInteger(id) || id < 0) {
+    throw new Error("Invalid first reward epoch ID: must be a non-negative integer.");
+  }
+  return id;
+}
+
 export function cli(program: Command) {
   program
     .command("uptime")
@@ -57,13 +66,7 @@ export function cli(program: Command) {
     .description("Get uptime and rewards vote status")
     .option("-r, --first-reward-epoch-id <firstRewardEpochId>", "First reward epoch id")
     .action(async (options: OptionValues) => {
-      let firstEpochId = NaN;
-      if (options.firstRewardEpochId !== undefined) {
-        firstEpochId = Number(options.firstRewardEpochId);
-        if (!Number.isInteger(firstEpochId) || firstEpochId < 0) {
-          throw new Error("Invalid first reward epoch ID: must be a non-negative integer.");
-        }
-      }
+      const firstEpochId = parseOptionalEpochId(options.firstRewardEpochId);
       const web3 = initializeWeb3();
       await getStatus(web3, CONTRACTS().FlareSystemsManager.address, firstEpochId);
     });

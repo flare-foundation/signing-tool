@@ -8,7 +8,7 @@ import {
   signRewards,
   signUptimeVote,
 } from "../src/sign.js";
-import { parseRewardEpochId, MAX_UINT24 } from "../src/cli.js";
+import { parseRewardEpochId, parseOptionalEpochId, MAX_UINT24 } from "../src/cli.js";
 import { CONTRACTS, RPC, ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks.js";
 import { ECDSASignature } from "../lib/ECDSASignature.js";
 import { getEpochRange, getStatus } from "../src/status.js";
@@ -275,6 +275,28 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
 
     it("Should reject undefined", () => {
       expect(() => parseRewardEpochId(undefined)).to.throw("Invalid reward epoch ID");
+    });
+  });
+
+  describe("Optional epoch ID validation (status command)", () => {
+    it("Should return NaN when undefined (flag omitted)", () => {
+      expect(parseOptionalEpochId(undefined)).to.be.NaN;
+    });
+
+    it("Should accept valid epoch ID", () => {
+      expect(parseOptionalEpochId("100")).to.eq(100);
+    });
+
+    it("Should reject negative values", () => {
+      expect(() => parseOptionalEpochId("-1")).to.throw("Invalid first reward epoch ID");
+    });
+
+    it("Should reject non-numeric values", () => {
+      expect(() => parseOptionalEpochId("abc")).to.throw("Invalid first reward epoch ID");
+    });
+
+    it("Should reject float values", () => {
+      expect(() => parseOptionalEpochId("5.5")).to.throw("Invalid first reward epoch ID");
     });
   });
 

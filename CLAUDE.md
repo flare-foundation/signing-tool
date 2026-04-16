@@ -46,6 +46,8 @@ NETWORK=coston node bin/signing-tool rewards -r 5456           # rewards command
 
 The unit tests alone are NOT sufficient — they run inside Hardhat's process and do not exercise the compiled `dist/` output or the `bin/signing-tool` entry point. A broken build or entry point will pass all tests but produce a non-functional CLI.
 
+Before committing, check if new or changed code needs new tests. Every validation path, error path, and new function should have test coverage. If logic is inside a callback (e.g. Commander action handlers), extract it into a testable function.
+
 ## Architecture
 
 CLI tool for signing uptime votes and reward distributions in the Flare Systems Protocol. Communicates with the `FlareSystemsManager` smart contract.
