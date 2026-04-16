@@ -57,7 +57,14 @@ export function cli(program: Command) {
     .description("Get uptime and rewards vote status")
     .option("-r, --first-reward-epoch-id <firstRewardEpochId>", "First reward epoch id")
     .action(async (options: OptionValues) => {
+      let firstEpochId = NaN;
+      if (options.firstRewardEpochId !== undefined) {
+        firstEpochId = Number(options.firstRewardEpochId);
+        if (!Number.isInteger(firstEpochId) || firstEpochId < 0) {
+          throw new Error("Invalid first reward epoch ID: must be a non-negative integer.");
+        }
+      }
       const web3 = initializeWeb3();
-      await getStatus(web3, CONTRACTS().FlareSystemsManager.address, Number(options.firstRewardEpochId));
+      await getStatus(web3, CONTRACTS().FlareSystemsManager.address, firstEpochId);
     });
 }
