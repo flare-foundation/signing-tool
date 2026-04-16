@@ -19,7 +19,7 @@
     "lint:fix": "eslint . --fix",
     "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" \"lib/**/*.ts\" \"configs/**/*.ts\"",
     "format:fix": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"lib/**/*.ts\" \"configs/**/*.ts\"",
-    "sign": "tsx src/sign.ts",
+    "sign": "tsx src/run.ts",
     "---------COMPILE---SCRIPTS": "",
     "compile": "hardhat compile",
     "test": "hardhat test",

@@ -9,6 +9,16 @@ import { round } from "./utils.js";
 
 dotenv.config({ quiet: true });
 
+function parseGasPriceMultiplier(): number {
+  const raw = process.env.GAS_PRICE_MULTIPLIER;
+  if (!raw) return 10;
+  const value = Number(raw);
+  if (isNaN(value) || value <= 0) {
+    throw new Error(`GAS_PRICE_MULTIPLIER must be a positive number, got: ${raw}`);
+  }
+  return round(value, 2);
+}
+
 export function getRewardCalculationDataPath(rewardEpochId: number) {
   const network = process.env.NETWORK as networks;
   switch (network) {
@@ -71,7 +81,7 @@ export async function signUptimeVote(
   const signature = ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
-  const gasPriceMultiplier = process.env.GAS_PRICE_MULTIPLIER ? round(Number(process.env.GAS_PRICE_MULTIPLIER), 2) : 10;
+  const gasPriceMultiplier = parseGasPriceMultiplier();
   gasPrice = (gasPrice * BigInt(gasPriceMultiplier * 100)) / 100n;
   const tx = {
     from: wallet.address,
@@ -79,7 +89,7 @@ export async function signUptimeVote(
     data: flareSystemsManager.methods.signUptimeVote!(rewardEpochId, fakeVoteHash, signature).encodeABI(),
     gas: "500000",
     gasPrice,
-    nonce: Number(nonce).toString(),
+    nonce: nonce.toString(),
   };
   const signed = await wallet.signTransaction(tx);
   try {
@@ -140,7 +150,7 @@ export async function signRewards(
   const signature = ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
-  const gasPriceMultiplier = process.env.GAS_PRICE_MULTIPLIER ? round(Number(process.env.GAS_PRICE_MULTIPLIER), 2) : 10;
+  const gasPriceMultiplier = parseGasPriceMultiplier();
   gasPrice = (gasPrice * BigInt(gasPriceMultiplier * 100)) / 100n;
   const tx = {
     from: wallet.address,
@@ -153,7 +163,7 @@ export async function signRewards(
     ).encodeABI(),
     gas: "500000",
     gasPrice,
-    nonce: Number(nonce).toString(),
+    nonce: nonce.toString(),
   };
   const signed = await wallet.signTransaction(tx);
   try {
