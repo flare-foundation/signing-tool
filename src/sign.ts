@@ -95,8 +95,8 @@ export async function signUptimeVote(
       console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e.reason}`);
     } else {
       console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${String(e)}`);
-      console.dir(e);
     }
+    throw e;
   }
 }
 
@@ -173,7 +173,7 @@ export async function signRewards(
       console.error(
         `Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${String(e)}`
       );
-      console.dir(e);
     }
+    throw e;
   }
 }

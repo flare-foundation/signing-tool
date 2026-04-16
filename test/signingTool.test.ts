@@ -108,8 +108,8 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
       const uptimeVoteHash = getUptimeVoteHash(web3);
       await signUptimeVote(web3, mockAddress, 0, uptimeVoteHash);
 
-      // vote again
-      await signUptimeVote(web3, mockAddress, 0, uptimeVoteHash);
+      // vote again — should throw because already signed
+      await expect(signUptimeVote(web3, mockAddress, 0, uptimeVoteHash)).to.be.rejected;
     });
   });
 
@@ -204,8 +204,8 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
       const rewardsHash = web3.utils.keccak256("rewards hash");
       await signRewards(web3, mockAddress, 3, rewardsHash, 56);
 
-      // vote again
-      await signRewards(web3, mockAddress, 3, rewardsHash, 56);
+      // vote again — should throw because already signed
+      await expect(signRewards(web3, mockAddress, 3, rewardsHash, 56)).to.be.rejected;
     });
   });
 
