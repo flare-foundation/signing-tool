@@ -22,7 +22,6 @@ export function initializeFlareSystemsManager(web3: Web3, flareSystemsManagerAdd
 
 export function initializeWeb3(): Web3 {
   if (RPC() === undefined) {
-    // should not happen due to checks in RPC()
     throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
   }
   return new Web3(RPC());

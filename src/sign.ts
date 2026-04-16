@@ -5,19 +5,10 @@ import { ZERO_BYTES32, type networks } from "../configs/networks.js";
 import axios from "axios";
 import * as dotenv from "dotenv";
 import { initializeFlareSystemsManager } from "../lib/initialize.js";
-import { round } from "./utils.js";
+import { parseGasPriceMultiplier } from "./utils.js";
 
 dotenv.config({ quiet: true });
 
-function parseGasPriceMultiplier(): number {
-  const raw = process.env.GAS_PRICE_MULTIPLIER;
-  if (!raw) return 10;
-  const value = Number(raw);
-  if (isNaN(value) || value <= 0) {
-    throw new Error(`GAS_PRICE_MULTIPLIER must be a positive number, got: ${raw}`);
-  }
-  return round(value, 2);
-}
 
 export function getRewardCalculationDataPath(rewardEpochId: number) {
   const network = process.env.NETWORK as networks;
@@ -81,7 +72,7 @@ export async function signUptimeVote(
   const signature = ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
-  const gasPriceMultiplier = parseGasPriceMultiplier();
+  const gasPriceMultiplier = parseGasPriceMultiplier(process.env.GAS_PRICE_MULTIPLIER);
   gasPrice = (gasPrice * BigInt(gasPriceMultiplier * 100)) / 100n;
   const tx = {
     from: wallet.address,
@@ -150,7 +141,7 @@ export async function signRewards(
   const signature = ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
-  const gasPriceMultiplier = parseGasPriceMultiplier();
+  const gasPriceMultiplier = parseGasPriceMultiplier(process.env.GAS_PRICE_MULTIPLIER);
   gasPrice = (gasPrice * BigInt(gasPriceMultiplier * 100)) / 100n;
   const tx = {
     from: wallet.address,

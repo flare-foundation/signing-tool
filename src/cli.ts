@@ -4,25 +4,7 @@ import { prompts } from "./prompts.js";
 import { getStatus } from "./status.js";
 import { initializeWeb3 } from "../lib/initialize.js";
 import { CONTRACTS } from "../configs/networks.js";
-
-export const MAX_UINT24 = 2 ** 24 - 1;
-
-export function parseRewardEpochId(raw: unknown): number {
-  const id = Number(raw);
-  if (!Number.isInteger(id) || id < 0 || id > MAX_UINT24) {
-    throw new Error(`Invalid reward epoch ID: must be an integer between 0 and ${MAX_UINT24}.`);
-  }
-  return id;
-}
-
-export function parseOptionalEpochId(raw: unknown): number {
-  if (raw === undefined) return NaN;
-  const id = Number(raw);
-  if (!Number.isInteger(id) || id < 0) {
-    throw new Error("Invalid first reward epoch ID: must be a non-negative integer.");
-  }
-  return id;
-}
+import { parseRewardEpochId, parseOptionalEpochId } from "./utils.js";
 
 export function cli(program: Command) {
   program

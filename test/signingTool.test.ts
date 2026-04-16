@@ -8,7 +8,7 @@ import {
   signRewards,
   signUptimeVote,
 } from "../src/sign.js";
-import { parseRewardEpochId, parseOptionalEpochId, MAX_UINT24 } from "../src/cli.js";
+import { parseRewardEpochId, parseOptionalEpochId, parseGasPriceMultiplier, round, MAX_UINT24 } from "../src/utils.js";
 import { CONTRACTS, RPC, ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks.js";
 import { ECDSASignature } from "../lib/ECDSASignature.js";
 import { getEpochRange, getStatus } from "../src/status.js";
@@ -297,6 +297,45 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
 
     it("Should reject float values", () => {
       expect(() => parseOptionalEpochId("5.5")).to.throw("Invalid first reward epoch ID");
+    });
+  });
+
+  describe("Gas price multiplier validation", () => {
+    it("Should return default 10 when undefined", () => {
+      expect(parseGasPriceMultiplier(undefined)).to.eq(10);
+    });
+
+    it("Should return default 10 when empty string", () => {
+      expect(parseGasPriceMultiplier("")).to.eq(10);
+    });
+
+    it("Should parse valid multiplier", () => {
+      expect(parseGasPriceMultiplier("5")).to.eq(5);
+      expect(parseGasPriceMultiplier("1.5")).to.eq(1.5);
+    });
+
+    it("Should reject non-numeric values", () => {
+      expect(() => parseGasPriceMultiplier("abc")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number");
+    });
+
+    it("Should reject zero", () => {
+      expect(() => parseGasPriceMultiplier("0")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number");
+    });
+
+    it("Should reject negative values", () => {
+      expect(() => parseGasPriceMultiplier("-5")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number");
+    });
+  });
+
+  describe("Round utility", () => {
+    it("Should round to nearest integer when decimal is 0", () => {
+      expect(round(5.6)).to.eq(6);
+      expect(round(5.4)).to.eq(5);
+    });
+
+    it("Should round to specified decimal places", () => {
+      expect(round(5.678, 2)).to.eq(5.68);
+      expect(round(5.671, 2)).to.eq(5.67);
     });
   });
 
