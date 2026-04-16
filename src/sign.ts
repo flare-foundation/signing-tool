@@ -1,11 +1,11 @@
 import { Web3 } from "web3";
-import { ECDSASignature } from "../lib/ECDSASignature";
-import { IRewardDistributionData } from "../lib/interfaces";
-import { ZERO_BYTES32, networks } from "../configs/networks";
+import { ECDSASignature } from "../lib/ECDSASignature.js";
+import type { IRewardDistributionData } from "../lib/interfaces.js";
+import { ZERO_BYTES32, type networks } from "../configs/networks.js";
 import axios from "axios";
 import * as dotenv from "dotenv";
-import { initializeFlareSystemsManager } from "../lib/initialize";
-import { round } from "./utils";
+import { initializeFlareSystemsManager } from "../lib/initialize.js";
+import { round } from "./utils.js";
 
 dotenv.config({ quiet: true });
 

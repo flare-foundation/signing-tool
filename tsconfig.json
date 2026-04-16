@@ -3,30 +3,21 @@
     "outDir": "./dist",
 
     "target": "es2024",
-    "module": "commonjs",
+    "lib": ["ES2024"],
+    "types": ["node"],
+    "module": "node20",
 
-    // Other Outputs
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "strictNullChecks": true,
-
-    // Javascript
-    "allowJs": true,
-
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
 
     // Recommended Options
     "strict": true,
     "isolatedModules": true,
-    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "test/**/*", "./typechain-web3-v1", "lib/**/*", "hardhat.config.ts"]
+  "include": ["src/**/*", "test/**/*", "lib/**/*", "hardhat.config.ts"]
 }

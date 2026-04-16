@@ -1,9 +1,9 @@
-import { Command, OptionValues } from "commander";
-import { getRewardsData, getUptimeVoteHash, signRewards, signUptimeVote } from "./sign";
-import { prompts } from "./prompts";
-import { getStatus } from "./status";
-import { initializeWeb3 } from "../lib/initialize";
-import { CONTRACTS } from "../configs/networks";
+import { Command, type OptionValues } from "commander";
+import { getRewardsData, getUptimeVoteHash, signRewards, signUptimeVote } from "./sign.js";
+import { prompts } from "./prompts.js";
+import { getStatus } from "./status.js";
+import { initializeWeb3 } from "../lib/initialize.js";
+import { CONTRACTS } from "../configs/networks.js";
 
 export function cli(program: Command) {
   program

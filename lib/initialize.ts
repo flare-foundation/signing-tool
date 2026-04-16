@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
-import { ContractAbi, Web3 } from "web3";
-import { RPC } from "../configs/networks";
+import { type ContractAbi, Web3 } from "web3";
+import { RPC } from "../configs/networks.js";
 
 export function initializeFlareSystemsManager(web3: Web3, flareSystemsManagerAddress: string) {
   const flareSystemsManagerAbi = (

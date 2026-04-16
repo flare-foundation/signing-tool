@@ -1,4 +1,4 @@
-import { ContractAbi } from "web3";
+import type { ContractAbi } from "web3";
 
 export interface IRewardDistributionData {
   rewardEpochId: number;

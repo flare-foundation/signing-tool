@@ -1,7 +1,7 @@
 import { Web3 } from "web3";
-import { ZERO_BYTES32 } from "../configs/networks";
+import { ZERO_BYTES32 } from "../configs/networks.js";
 import * as dotenv from "dotenv";
-import { initializeFlareSystemsManager } from "../lib/initialize";
+import { initializeFlareSystemsManager } from "../lib/initialize.js";
 
 dotenv.config({ quiet: true });
 

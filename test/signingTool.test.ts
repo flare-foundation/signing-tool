@@ -1,5 +1,5 @@
-import { getTestFile } from "./utils";
-import { initializeWeb3 } from "../lib/initialize";
+import { getTestFile } from "./utils.js";
+import { initializeWeb3 } from "../lib/initialize.js";
 import { expect } from "chai";
 import {
   getRewardCalculationDataPath,
@@ -7,24 +7,40 @@ import {
   getUptimeVoteHash,
   signRewards,
   signUptimeVote,
-} from "../src/sign";
-import { CONTRACTS, RPC, ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks";
-import { ECDSASignature } from "../lib/ECDSASignature";
-import { getEpochRange, getStatus } from "../src/status";
+} from "../src/sign.js";
+import { CONTRACTS, RPC, ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks.js";
+import { ECDSASignature } from "../lib/ECDSASignature.js";
+import { getEpochRange, getStatus } from "../src/status.js";
 import { EventEmitter } from "events";
 import fs from "fs";
-import { ethers } from "hardhat";
-import { FlareSystemsManagerMock } from "../typechain/FlareSystemsManagerMock";
+import hre from "hardhat";
+import { Web3 } from "web3";
+import type { BaseContract, BigNumberish } from "ethers";
+
+interface FlareSystemsManagerMock extends BaseContract {
+  voterUptimeVoteHash(rewardEpochId: BigNumberish, voter: string): Promise<string>;
+  voterRewardsHash(rewardEpochId: BigNumberish, voter: string): Promise<string>;
+  uptimeVoteHash(rewardEpochId: BigNumberish): Promise<string>;
+  rewardsHash(rewardEpochId: BigNumberish): Promise<string>;
+  setCurrentRewardEpochId(rewardEpochId: BigNumberish): Promise<unknown>;
+  getCurrentRewardEpochId(): Promise<bigint>;
+  setHashes(rewardEpochId: BigNumberish, uptimeVoteHash: string, rewardsHash: string): Promise<unknown>;
+}
 // increase max listeners to prevent warning
 EventEmitter.defaultMaxListeners = 20;
 
-// Declare Hardhat-provided global `web3` (from @nomicfoundation/hardhat-web3-v4)
-declare const web3: any;
-
 //// Before running these tests comment local .env file
-describe(`Signing tool test; ${getTestFile(__filename)}`, () => {
+describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
   let fsmMock: FlareSystemsManagerMock;
   let accounts: string[];
+  let web3: Web3;
+  let ethers: Awaited<ReturnType<typeof hre.network.connect>>["ethers"];
+
+  before(async () => {
+    const connection = await hre.network.connect();
+    ethers = connection.ethers;
+    web3 = new Web3(connection.provider as any);
+  });
 
   beforeEach(async () => {
     process.env.NETWORK = "coston";
