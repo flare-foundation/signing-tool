@@ -8,6 +8,7 @@ import {
   signRewards,
   signUptimeVote,
 } from "../src/sign.js";
+import { parseRewardEpochId, MAX_UINT24 } from "../src/cli.js";
 import { CONTRACTS, RPC, ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks.js";
 import { ECDSASignature } from "../lib/ECDSASignature.js";
 import { getEpochRange, getStatus } from "../src/status.js";
@@ -246,6 +247,34 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
 
       // vote again — should throw because already signed
       await expect(signRewards(web3, mockAddress, 3, rewardsHash, 56)).to.be.rejected;
+    });
+  });
+
+  describe("Reward epoch ID validation", () => {
+    it("Should accept valid epoch ID", () => {
+      expect(parseRewardEpochId("100")).to.eq(100);
+      expect(parseRewardEpochId("0")).to.eq(0);
+      expect(parseRewardEpochId(String(MAX_UINT24))).to.eq(MAX_UINT24);
+    });
+
+    it("Should reject negative values", () => {
+      expect(() => parseRewardEpochId("-1")).to.throw("Invalid reward epoch ID");
+    });
+
+    it("Should reject float values", () => {
+      expect(() => parseRewardEpochId("5.5")).to.throw("Invalid reward epoch ID");
+    });
+
+    it("Should reject values above uint24 max", () => {
+      expect(() => parseRewardEpochId(String(MAX_UINT24 + 1))).to.throw("Invalid reward epoch ID");
+    });
+
+    it("Should reject non-numeric values", () => {
+      expect(() => parseRewardEpochId("abc")).to.throw("Invalid reward epoch ID");
+    });
+
+    it("Should reject undefined", () => {
+      expect(() => parseRewardEpochId(undefined)).to.throw("Invalid reward epoch ID");
     });
   });
 
