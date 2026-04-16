@@ -73,7 +73,7 @@ export async function signUptimeVote(
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
   const gasPriceMultiplier = parseGasPriceMultiplier(process.env.GAS_PRICE_MULTIPLIER);
-  gasPrice = (gasPrice * BigInt(gasPriceMultiplier * 100)) / 100n;
+  gasPrice = (gasPrice * BigInt(Math.round(gasPriceMultiplier * 100))) / 100n;
   const tx = {
     from: wallet.address,
     to: flareSystemsManagerAddress,
@@ -142,7 +142,7 @@ export async function signRewards(
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
   const gasPriceMultiplier = parseGasPriceMultiplier(process.env.GAS_PRICE_MULTIPLIER);
-  gasPrice = (gasPrice * BigInt(gasPriceMultiplier * 100)) / 100n;
+  gasPrice = (gasPrice * BigInt(Math.round(gasPriceMultiplier * 100))) / 100n;
   const tx = {
     from: wallet.address,
     to: flareSystemsManagerAddress,

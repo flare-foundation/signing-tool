@@ -312,6 +312,15 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
     it("Should parse valid multiplier", () => {
       expect(parseGasPriceMultiplier("5")).to.eq(5);
       expect(parseGasPriceMultiplier("1.5")).to.eq(1.5);
+      expect(parseGasPriceMultiplier("1.49")).to.eq(1.49);
+    });
+
+    it("Should produce valid BigInt when multiplied by 100", () => {
+      const values = ["1.49", "1.51", "2.01", "0.99", "10.1"];
+      for (const v of values) {
+        const m = parseGasPriceMultiplier(v);
+        expect(() => BigInt(Math.round(m * 100))).to.not.throw();
+      }
     });
 
     it("Should reject non-numeric values", () => {
