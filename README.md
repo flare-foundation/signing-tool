@@ -24,9 +24,9 @@ NOTE: Ensure that you work in a secure environment (server).
 
 Create an environment file (`.env`) with the following content (see [template](.env_template)):
 
-- `SIGNING_POLICY_PRIVATE_KEY` - Private key of the signing policy address. Private key should be prefixed with `0x`.
+- `SIGNING_POLICY_PRIVATE_KEY` - Private key of the signing policy address. Must be `0x`-prefixed, 64 hex characters (32 bytes).
 - `NETWORK` - Network on which to sign (`flare`, `songbird`, `coston`, `coston2`).
-- `PRIVATE_KEY` - Private key of the address that will be used to send transactions (recommended not to be the same as `SIGNING_POLICY_PRIVATE_KEY` to avoid nonce issues since the signing policy address is used for finalizations by [Flare Systems Client](https://github.com/flare-foundation/flare-system-client)). Recommended to use a private key, distinct of any data provider entity keys, specifically used for sending transactions and paying gas. Private key should be prefixed with `0x`.
+- `PRIVATE_KEY` - Private key of the address that will be used to send transactions (recommended not to be the same as `SIGNING_POLICY_PRIVATE_KEY` to avoid nonce issues since the signing policy address is used for finalizations by [Flare Systems Client](https://github.com/flare-foundation/flare-system-client)). Recommended to use a private key, distinct of any data provider entity keys, specifically used for sending transactions and paying gas. Must be `0x`-prefixed, 64 hex characters (32 bytes).
 - Optionally one can set custom RPC endpoints for each network that will override the public ones (e.g. for Flare network one should set `FLARE_RPC=<private_rpc>`, for others use `SONGBIRD_RPC`, `COSTON_RPC`, `COSTON2_RPC`).
 - `GAS_PRICE_MULTIPLIER` - Optionally one can set custom gas price multiplier. Otherwise, the default multiplier (10) is used.
 
@@ -51,18 +51,20 @@ pnpm build
 
 ## Signing uptime vote
 
-Signs hash-of-zero Merkle root and sends it as a vote for uptime voting to `FlareSystemsManager`.
+Signs a keccak256 hash of zero bytes and sends it as an uptime vote to `FlareSystemsManager`.
 
 ```bash
-bin/signing-tool uptime --reward-epoch-id <reward_epoch_id>
+bin/signing-tool uptime --reward-epoch-id <reward_epoch_id>  # or -r
 ```
+
+The reward epoch ID must be a non-negative integer up to 16,777,215 (uint24).
 
 ## Signing rewards
 
 Fetches the reward distribution data from [reward calculation results](https://github.com/flare-foundation/fsp-rewards/tree/main/) (mainnet) or [testnet rewards](https://gitlab.com/timivesel/ftsov2-testnet-rewards) (coston/coston2). It prints out the data and once confirmed it signs them with `SIGNING_POLICY_PRIVATE_KEY` and sends them to `FlareSystemsManager` smart contract.
 
 ```bash
-bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>
+bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>  # or -r
 ```
 
 ## Signing status check
@@ -70,8 +72,10 @@ bin/signing-tool rewards --reward-epoch-id <reward_epoch_id>
 Checks the signing status for both uptime vote and reward
 
 ```bash
-bin/signing-tool status --first-reward-epoch-id <reward_epoch_id>
+bin/signing-tool status --first-reward-epoch-id <reward_epoch_id>  # or -r
 ```
+
+When `--first-reward-epoch-id` is omitted, shows the last 5 epochs.
 
 ## Technical details
 
