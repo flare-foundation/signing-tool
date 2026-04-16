@@ -87,7 +87,7 @@ Note that signing and sending constitute voting for the signed Merkle root with 
 
 ### Uptime voting
 
-In current deployments uptime voting is not fully supported and used. But since Flare Systems Protocol requires concluded uptime voting in order to start reward distribution voting the data providers have to sign Merkle root which is the hash (sha256). The method [`signUptimeVote`](https://gitlab.com/flarenetwork/flare-smart-contracts-v2/-/blob/main/contracts/protocol/implementation/FlareSystemsManager.sol?ref_type=heads#L460) on `FlareSystemsManager` smart contract is used.
+In current deployments uptime voting is not fully supported and used. But since Flare Systems Protocol requires concluded uptime voting in order to start reward distribution voting the data providers have to sign Merkle root which is the hash (keccak256). The method [`signUptimeVote`](https://gitlab.com/flarenetwork/flare-smart-contracts-v2/-/blob/main/contracts/protocol/implementation/FlareSystemsManager.sol?ref_type=heads#L460) on `FlareSystemsManager` smart contract is used.
 
 ### Reward distribution voting
 
