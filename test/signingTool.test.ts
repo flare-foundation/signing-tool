@@ -13,6 +13,7 @@ import { ECDSASignature } from "../lib/ECDSASignature.js";
 import { getEpochRange, getStatus } from "../src/status.js";
 import { EventEmitter } from "events";
 import fs from "fs";
+import axios from "axios";
 import hre from "hardhat";
 import { Web3 } from "web3";
 import type { BaseContract, BigNumberish } from "ethers";
@@ -165,6 +166,45 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
       const [rewardsHash, noOfWeightBasedClaims] = await getRewardsData(196);
       expect(rewardsHash).to.eq("0x83f0f2c5e35259ebf80100273f5fd0bcf2e6109180b8efcf2d7ce5d5dfbe1f20");
       expect(noOfWeightBasedClaims).to.eq(34);
+    });
+
+    describe("Reward data validation", () => {
+      let originalGet: typeof axios.get;
+
+      beforeEach(() => {
+        process.env.NETWORK = "songbird";
+        originalGet = axios.get;
+      });
+
+      afterEach(() => {
+        axios.get = originalGet;
+      });
+
+      it("Should revert if merkleRoot is missing", async () => {
+        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, noOfWeightBasedClaims: 5 } })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing merkleRoot");
+      });
+
+      it("Should revert if merkleRoot is not a valid hex string", async () => {
+        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, noOfWeightBasedClaims: 5, merkleRoot: "not-hex" } })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing merkleRoot");
+      });
+
+      it("Should revert if noOfWeightBasedClaims is missing", async () => {
+        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32) } })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
+      });
+
+      it("Should revert if noOfWeightBasedClaims is not an integer", async () => {
+        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: 5.5 } })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
+      });
+
+      it("Should revert if rewardEpochId does not match requested epoch", async () => {
+        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 999, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: 5 } })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Reward epoch ID mismatch");
+      });
+
     });
   });
 

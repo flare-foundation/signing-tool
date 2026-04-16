@@ -36,10 +36,17 @@ export async function getRewardsData(rewardEpochId: number): Promise<[string, nu
     throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
   }
   const response = await axios.get(path);
-  const data: IRewardDistributionData = response.data as IRewardDistributionData;
-  const rewardsHash: string = data.merkleRoot;
-  const noOfWeightBasedClaims: number = data.noOfWeightBasedClaims;
-  return [rewardsHash, noOfWeightBasedClaims];
+  const data = response.data as IRewardDistributionData;
+  if (!data.merkleRoot || typeof data.merkleRoot !== "string" || !/^0x[0-9a-fA-F]{64}$/.test(data.merkleRoot)) {
+    throw new Error(`Invalid or missing merkleRoot in reward data: ${String(data.merkleRoot)}`);
+  }
+  if (typeof data.noOfWeightBasedClaims !== "number" || !Number.isInteger(data.noOfWeightBasedClaims)) {
+    throw new Error(`Invalid or missing noOfWeightBasedClaims in reward data: ${String(data.noOfWeightBasedClaims)}`);
+  }
+  if (data.rewardEpochId !== rewardEpochId) {
+    throw new Error(`Reward epoch ID mismatch: requested ${rewardEpochId}, got ${String(data.rewardEpochId)}`);
+  }
+  return [data.merkleRoot, data.noOfWeightBasedClaims];
 }
 
 export async function signUptimeVote(
