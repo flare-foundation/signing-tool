@@ -36,7 +36,7 @@ export async function getRewardsData(rewardEpochId: number): Promise<[string, nu
   if (path === undefined) {
     throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
   }
-  const response = await axios.get(path);
+  const response = await axios.get(path, { timeout: 30_000 });
   const data = response.data as IRewardDistributionData;
   if (!data.merkleRoot || typeof data.merkleRoot !== "string" || !/^0x[0-9a-fA-F]{64}$/.test(data.merkleRoot)) {
     throw new Error(`Invalid or missing merkleRoot in reward data: ${String(data.merkleRoot)}`);
