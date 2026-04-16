@@ -380,6 +380,12 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
   });
 
   describe("Status", () => {
+    it("Should clamp start epoch to 0 when current epoch is small", () => {
+      const [firstRewardEpochId, lastRewardEpochId] = getEpochRange(NaN, 2);
+      expect(firstRewardEpochId).to.eq(0);
+      expect(lastRewardEpochId).to.eq(2);
+    });
+
     it("Should get first and last epochs if epoch ID is not provided", async () => {
       await fsmMock.setCurrentRewardEpochId(30);
       const [firstRewardEpochId, lastRewardEpochId] = getEpochRange(NaN, 30);

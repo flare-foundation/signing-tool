@@ -32,7 +32,7 @@ export function getEpochRange(rewardEpochId: number, currentRewardEpochId: numbe
 
   if (isNaN(rewardEpochId)) {
     endRewardEpochId = currentRewardEpochId;
-    startRewardEpochId = currentRewardEpochId - 4;
+    startRewardEpochId = Math.max(0, currentRewardEpochId - 4);
   } else {
     endRewardEpochId = currentRewardEpochId;
     startRewardEpochId = rewardEpochId;
