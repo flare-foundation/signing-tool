@@ -174,6 +174,7 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
 
       beforeEach(() => {
         process.env.NETWORK = "songbird";
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         originalGet = axios.get;
       });
 
@@ -182,35 +183,48 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
       });
 
       it("Should revert if merkleRoot is missing", async () => {
-        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, noOfWeightBasedClaims: 5 } })) as typeof axios.get;
+        axios.get = (() =>
+          Promise.resolve({ data: { rewardEpochId: 1, noOfWeightBasedClaims: 5 } })) as typeof axios.get;
         await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing merkleRoot");
       });
 
       it("Should revert if merkleRoot is not a valid hex string", async () => {
-        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, noOfWeightBasedClaims: 5, merkleRoot: "not-hex" } })) as typeof axios.get;
+        axios.get = (() =>
+          Promise.resolve({
+            data: { rewardEpochId: 1, noOfWeightBasedClaims: 5, merkleRoot: "not-hex" },
+          })) as typeof axios.get;
         await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing merkleRoot");
       });
 
       it("Should revert if noOfWeightBasedClaims is missing", async () => {
-        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32) } })) as typeof axios.get;
+        axios.get = (() =>
+          Promise.resolve({ data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32) } })) as typeof axios.get;
         await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
       });
 
       it("Should revert if noOfWeightBasedClaims is negative", async () => {
-        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: -1 } })) as typeof axios.get;
+        axios.get = (() =>
+          Promise.resolve({
+            data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: -1 },
+          })) as typeof axios.get;
         await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
       });
 
       it("Should revert if noOfWeightBasedClaims is not an integer", async () => {
-        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: 5.5 } })) as typeof axios.get;
+        axios.get = (() =>
+          Promise.resolve({
+            data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: 5.5 },
+          })) as typeof axios.get;
         await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
       });
 
       it("Should revert if rewardEpochId does not match requested epoch", async () => {
-        axios.get = (() => Promise.resolve({ data: { rewardEpochId: 999, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: 5 } })) as typeof axios.get;
+        axios.get = (() =>
+          Promise.resolve({
+            data: { rewardEpochId: 999, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: 5 },
+          })) as typeof axios.get;
         await expect(getRewardsData(1)).to.be.rejectedWith("Reward epoch ID mismatch");
       });
-
     });
   });
 

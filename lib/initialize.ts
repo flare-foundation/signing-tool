@@ -14,9 +14,8 @@ function findProjectRoot(startDir: string): string {
 
 export function initializeFlareSystemsManager(web3: Web3, flareSystemsManagerAddress: string) {
   const abiPath = join(findProjectRoot(import.meta.dirname), "abi", "FlareSystemsManager.json");
-  const flareSystemsManagerAbi = (
-    JSON.parse(readFileSync(abiPath).toString()) as Record<string, unknown>
-  ).abi as ContractAbi;
+  const flareSystemsManagerAbi = (JSON.parse(readFileSync(abiPath).toString()) as Record<string, unknown>)
+    .abi as ContractAbi;
   return new web3.eth.Contract(flareSystemsManagerAbi, flareSystemsManagerAddress);
 }
 

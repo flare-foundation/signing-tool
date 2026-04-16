@@ -9,7 +9,6 @@ import { parseGasPriceMultiplier } from "./utils.js";
 
 dotenv.config({ quiet: true });
 
-
 export function getRewardCalculationDataPath(rewardEpochId: number) {
   const network = process.env.NETWORK as networks;
   switch (network) {
@@ -41,7 +40,11 @@ export async function getRewardsData(rewardEpochId: number): Promise<[string, nu
   if (!data.merkleRoot || typeof data.merkleRoot !== "string" || !/^0x[0-9a-fA-F]{64}$/.test(data.merkleRoot)) {
     throw new Error(`Invalid or missing merkleRoot in reward data: ${String(data.merkleRoot)}`);
   }
-  if (typeof data.noOfWeightBasedClaims !== "number" || !Number.isInteger(data.noOfWeightBasedClaims) || data.noOfWeightBasedClaims < 0) {
+  if (
+    typeof data.noOfWeightBasedClaims !== "number" ||
+    !Number.isInteger(data.noOfWeightBasedClaims) ||
+    data.noOfWeightBasedClaims < 0
+  ) {
     throw new Error(`Invalid or missing noOfWeightBasedClaims in reward data: ${String(data.noOfWeightBasedClaims)}`);
   }
   if (data.rewardEpochId !== rewardEpochId) {
