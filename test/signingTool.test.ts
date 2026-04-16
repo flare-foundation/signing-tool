@@ -1,5 +1,5 @@
-import { getTestFile } from "./utils";
-import { initializeWeb3 } from "../lib/initialize";
+import { getTestFile } from "./utils.js";
+import { initializeWeb3 } from "../lib/initialize.js";
 import { expect } from "chai";
 import {
   getRewardCalculationDataPath,
@@ -7,24 +7,42 @@ import {
   getUptimeVoteHash,
   signRewards,
   signUptimeVote,
-} from "../src/sign";
-import { CONTRACTS, RPC, ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks";
-import { ECDSASignature } from "../lib/ECDSASignature";
-import { getEpochRange, getStatus } from "../src/status";
+} from "../src/sign.js";
+import { parseRewardEpochId, parseOptionalEpochId, parseGasPriceMultiplier, round, MAX_UINT24 } from "../src/utils.js";
+import { CONTRACTS, RPC, ZERO_ADDRESS, ZERO_BYTES32 } from "../configs/networks.js";
+import { ECDSASignature } from "../lib/ECDSASignature.js";
+import { getEpochRange, getStatus } from "../src/status.js";
 import { EventEmitter } from "events";
 import fs from "fs";
-import { ethers } from "hardhat";
-import { FlareSystemsManagerMock } from "../typechain/FlareSystemsManagerMock";
+import axios from "axios";
+import hre from "hardhat";
+import { Web3 } from "web3";
+import type { BaseContract, BigNumberish } from "ethers";
+
+interface FlareSystemsManagerMock extends BaseContract {
+  voterUptimeVoteHash(rewardEpochId: BigNumberish, voter: string): Promise<string>;
+  voterRewardsHash(rewardEpochId: BigNumberish, voter: string): Promise<string>;
+  uptimeVoteHash(rewardEpochId: BigNumberish): Promise<string>;
+  rewardsHash(rewardEpochId: BigNumberish): Promise<string>;
+  setCurrentRewardEpochId(rewardEpochId: BigNumberish): Promise<unknown>;
+  getCurrentRewardEpochId(): Promise<bigint>;
+  setHashes(rewardEpochId: BigNumberish, uptimeVoteHash: string, rewardsHash: string): Promise<unknown>;
+}
 // increase max listeners to prevent warning
 EventEmitter.defaultMaxListeners = 20;
 
-// Declare Hardhat-provided global `web3` (from @nomicfoundation/hardhat-web3-v4)
-declare const web3: any;
-
 //// Before running these tests comment local .env file
-describe(`Signing tool test; ${getTestFile(__filename)}`, () => {
+describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
   let fsmMock: FlareSystemsManagerMock;
   let accounts: string[];
+  let web3: Web3;
+  let ethers: Awaited<ReturnType<typeof hre.network.connect>>["ethers"];
+
+  before(async () => {
+    const connection = await hre.network.connect();
+    ethers = connection.ethers;
+    web3 = new Web3(connection.provider as any);
+  });
 
   beforeEach(async () => {
     process.env.NETWORK = "coston";
@@ -92,8 +110,8 @@ describe(`Signing tool test; ${getTestFile(__filename)}`, () => {
       const uptimeVoteHash = getUptimeVoteHash(web3);
       await signUptimeVote(web3, mockAddress, 0, uptimeVoteHash);
 
-      // vote again
-      await signUptimeVote(web3, mockAddress, 0, uptimeVoteHash);
+      // vote again — should throw because already signed
+      await expect(signUptimeVote(web3, mockAddress, 0, uptimeVoteHash)).to.be.rejected;
     });
   });
 
@@ -150,6 +168,64 @@ describe(`Signing tool test; ${getTestFile(__filename)}`, () => {
       expect(rewardsHash).to.eq("0x83f0f2c5e35259ebf80100273f5fd0bcf2e6109180b8efcf2d7ce5d5dfbe1f20");
       expect(noOfWeightBasedClaims).to.eq(34);
     });
+
+    describe("Reward data validation", () => {
+      let originalGet: typeof axios.get;
+
+      beforeEach(() => {
+        process.env.NETWORK = "songbird";
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        originalGet = axios.get;
+      });
+
+      afterEach(() => {
+        axios.get = originalGet;
+      });
+
+      it("Should revert if merkleRoot is missing", async () => {
+        axios.get = (() =>
+          Promise.resolve({ data: { rewardEpochId: 1, noOfWeightBasedClaims: 5 } })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing merkleRoot");
+      });
+
+      it("Should revert if merkleRoot is not a valid hex string", async () => {
+        axios.get = (() =>
+          Promise.resolve({
+            data: { rewardEpochId: 1, noOfWeightBasedClaims: 5, merkleRoot: "not-hex" },
+          })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing merkleRoot");
+      });
+
+      it("Should revert if noOfWeightBasedClaims is missing", async () => {
+        axios.get = (() =>
+          Promise.resolve({ data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32) } })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
+      });
+
+      it("Should revert if noOfWeightBasedClaims is negative", async () => {
+        axios.get = (() =>
+          Promise.resolve({
+            data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: -1 },
+          })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
+      });
+
+      it("Should revert if noOfWeightBasedClaims is not an integer", async () => {
+        axios.get = (() =>
+          Promise.resolve({
+            data: { rewardEpochId: 1, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: 5.5 },
+          })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Invalid or missing noOfWeightBasedClaims");
+      });
+
+      it("Should revert if rewardEpochId does not match requested epoch", async () => {
+        axios.get = (() =>
+          Promise.resolve({
+            data: { rewardEpochId: 999, merkleRoot: "0x" + "ab".repeat(32), noOfWeightBasedClaims: 5 },
+          })) as typeof axios.get;
+        await expect(getRewardsData(1)).to.be.rejectedWith("Reward epoch ID mismatch");
+      });
+    });
   });
 
   describe("Sign rewards", () => {
@@ -188,8 +264,110 @@ describe(`Signing tool test; ${getTestFile(__filename)}`, () => {
       const rewardsHash = web3.utils.keccak256("rewards hash");
       await signRewards(web3, mockAddress, 3, rewardsHash, 56);
 
-      // vote again
-      await signRewards(web3, mockAddress, 3, rewardsHash, 56);
+      // vote again — should throw because already signed
+      await expect(signRewards(web3, mockAddress, 3, rewardsHash, 56)).to.be.rejected;
+    });
+  });
+
+  describe("Reward epoch ID validation", () => {
+    it("Should accept valid epoch ID", () => {
+      expect(parseRewardEpochId("100")).to.eq(100);
+      expect(parseRewardEpochId("0")).to.eq(0);
+      expect(parseRewardEpochId(String(MAX_UINT24))).to.eq(MAX_UINT24);
+    });
+
+    it("Should reject negative values", () => {
+      expect(() => parseRewardEpochId("-1")).to.throw("Invalid reward epoch ID");
+    });
+
+    it("Should reject float values", () => {
+      expect(() => parseRewardEpochId("5.5")).to.throw("Invalid reward epoch ID");
+    });
+
+    it("Should reject values above uint24 max", () => {
+      expect(() => parseRewardEpochId(String(MAX_UINT24 + 1))).to.throw("Invalid reward epoch ID");
+    });
+
+    it("Should reject non-numeric values", () => {
+      expect(() => parseRewardEpochId("abc")).to.throw("Invalid reward epoch ID");
+    });
+
+    it("Should reject undefined", () => {
+      expect(() => parseRewardEpochId(undefined)).to.throw("Invalid reward epoch ID");
+    });
+  });
+
+  describe("Optional epoch ID validation (status command)", () => {
+    it("Should return NaN when undefined (flag omitted)", () => {
+      expect(parseOptionalEpochId(undefined)).to.be.NaN;
+    });
+
+    it("Should accept valid epoch ID", () => {
+      expect(parseOptionalEpochId("100")).to.eq(100);
+    });
+
+    it("Should reject negative values", () => {
+      expect(() => parseOptionalEpochId("-1")).to.throw("Invalid first reward epoch ID");
+    });
+
+    it("Should reject non-numeric values", () => {
+      expect(() => parseOptionalEpochId("abc")).to.throw("Invalid first reward epoch ID");
+    });
+
+    it("Should reject float values", () => {
+      expect(() => parseOptionalEpochId("5.5")).to.throw("Invalid first reward epoch ID");
+    });
+  });
+
+  describe("Gas price multiplier validation", () => {
+    it("Should return default 10 when undefined", () => {
+      expect(parseGasPriceMultiplier(undefined)).to.eq(10);
+    });
+
+    it("Should return default 10 when empty string", () => {
+      expect(parseGasPriceMultiplier("")).to.eq(10);
+    });
+
+    it("Should parse valid multiplier", () => {
+      expect(parseGasPriceMultiplier("5")).to.eq(5);
+      expect(parseGasPriceMultiplier("1.5")).to.eq(1.5);
+      expect(parseGasPriceMultiplier("1.49")).to.eq(1.49);
+    });
+
+    it("Should produce valid BigInt when multiplied by 100", () => {
+      const values = ["1.49", "1.51", "2.01", "0.99", "10.1"];
+      for (const v of values) {
+        const m = parseGasPriceMultiplier(v);
+        expect(() => BigInt(Math.round(m * 100))).to.not.throw();
+      }
+    });
+
+    it("Should reject non-numeric values", () => {
+      expect(() => parseGasPriceMultiplier("abc")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number up to 100");
+    });
+
+    it("Should reject zero", () => {
+      expect(() => parseGasPriceMultiplier("0")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number up to 100");
+    });
+
+    it("Should reject negative values", () => {
+      expect(() => parseGasPriceMultiplier("-5")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number up to 100");
+    });
+
+    it("Should reject values above 100", () => {
+      expect(() => parseGasPriceMultiplier("101")).to.throw("GAS_PRICE_MULTIPLIER must be a positive number up to 100");
+    });
+  });
+
+  describe("Round utility", () => {
+    it("Should round to nearest integer when decimal is 0", () => {
+      expect(round(5.6)).to.eq(6);
+      expect(round(5.4)).to.eq(5);
+    });
+
+    it("Should round to specified decimal places", () => {
+      expect(round(5.678, 2)).to.eq(5.68);
+      expect(round(5.671, 2)).to.eq(5.67);
     });
   });
 
@@ -216,6 +394,12 @@ describe(`Signing tool test; ${getTestFile(__filename)}`, () => {
   });
 
   describe("Status", () => {
+    it("Should clamp start epoch to 0 when current epoch is small", () => {
+      const [firstRewardEpochId, lastRewardEpochId] = getEpochRange(NaN, 2);
+      expect(firstRewardEpochId).to.eq(0);
+      expect(lastRewardEpochId).to.eq(2);
+    });
+
     it("Should get first and last epochs if epoch ID is not provided", async () => {
       await fsmMock.setCurrentRewardEpochId(30);
       const [firstRewardEpochId, lastRewardEpochId] = getEpochRange(NaN, 30);

@@ -1,7 +1,7 @@
 import { Web3 } from "web3";
-import { ZERO_BYTES32 } from "../configs/networks";
+import { ZERO_BYTES32 } from "../configs/networks.js";
 import * as dotenv from "dotenv";
-import { initializeFlareSystemsManager } from "../lib/initialize";
+import { initializeFlareSystemsManager } from "../lib/initialize.js";
 
 dotenv.config({ quiet: true });
 
@@ -32,7 +32,7 @@ export function getEpochRange(rewardEpochId: number, currentRewardEpochId: numbe
 
   if (isNaN(rewardEpochId)) {
     endRewardEpochId = currentRewardEpochId;
-    startRewardEpochId = currentRewardEpochId - 4;
+    startRewardEpochId = Math.max(0, currentRewardEpochId - 4);
   } else {
     endRewardEpochId = currentRewardEpochId;
     startRewardEpochId = rewardEpochId;

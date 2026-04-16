@@ -1,4 +1,4 @@
-import { NetworkContractAddresses } from "./contracts";
+import type { NetworkContractAddresses } from "./contracts.js";
 import * as dotenv from "dotenv";
 
 dotenv.config({ quiet: true });

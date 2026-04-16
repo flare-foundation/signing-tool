@@ -1,9 +1,10 @@
-import { Command, OptionValues } from "commander";
-import { getRewardsData, getUptimeVoteHash, signRewards, signUptimeVote } from "./sign";
-import { prompts } from "./prompts";
-import { getStatus } from "./status";
-import { initializeWeb3 } from "../lib/initialize";
-import { CONTRACTS } from "../configs/networks";
+import { Command, type OptionValues } from "commander";
+import { getRewardsData, getUptimeVoteHash, signRewards, signUptimeVote } from "./sign.js";
+import { prompts } from "./prompts.js";
+import { getStatus } from "./status.js";
+import { initializeWeb3 } from "../lib/initialize.js";
+import { CONTRACTS } from "../configs/networks.js";
+import { parseRewardEpochId, parseOptionalEpochId } from "./utils.js";
 
 export function cli(program: Command) {
   program
@@ -11,10 +12,7 @@ export function cli(program: Command) {
     .description("Sign uptime vote")
     .option("-r, --reward-epoch-id <rewardEpochId>", "Reward epoch id")
     .action(async (options: OptionValues) => {
-      const rewardEpochId = Number(options.rewardEpochId);
-      if (isNaN(rewardEpochId)) {
-        throw new Error("Reward epoch was not provided or is not a number.");
-      }
+      const rewardEpochId = parseRewardEpochId(options.rewardEpochId);
       const web3 = initializeWeb3();
       const uptimeVoteHash = getUptimeVoteHash(web3);
       const shouldContinue = (await prompts.continueUptimeVote(rewardEpochId, uptimeVoteHash)) as {
@@ -29,10 +27,7 @@ export function cli(program: Command) {
     .description("Sign rewards vote")
     .option("-r, --reward-epoch-id <rewardEpochId>", "Reward epoch id")
     .action(async (options: OptionValues) => {
-      const rewardEpochId = Number(options.rewardEpochId);
-      if (isNaN(rewardEpochId)) {
-        throw new Error("Reward epoch was not provided or is not a number.");
-      }
+      const rewardEpochId = parseRewardEpochId(options.rewardEpochId);
       const [rewardsHash, noOfWeightBasedClaims] = await getRewardsData(rewardEpochId);
       const shouldContinue = (await prompts.continueRewards(rewardEpochId, rewardsHash, noOfWeightBasedClaims)) as {
         continueRewards: boolean;
@@ -53,7 +48,8 @@ export function cli(program: Command) {
     .description("Get uptime and rewards vote status")
     .option("-r, --first-reward-epoch-id <firstRewardEpochId>", "First reward epoch id")
     .action(async (options: OptionValues) => {
+      const firstEpochId = parseOptionalEpochId(options.firstRewardEpochId);
       const web3 = initializeWeb3();
-      await getStatus(web3, CONTRACTS().FlareSystemsManager.address, Number(options.firstRewardEpochId));
+      await getStatus(web3, CONTRACTS().FlareSystemsManager.address, firstEpochId);
     });
 }

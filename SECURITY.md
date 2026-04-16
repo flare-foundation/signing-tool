@@ -17,5 +17,5 @@ scope, rules, and submission guidelines.
 ## Vulnerability disclosures
 
 Critical vulnerabilities will be disclosed via GitHub's
-[security advisory](https://github.com/flare-foundation/fassets/security)
+[security advisory](https://github.com/flare-foundation/signing-tool/security)
 system.

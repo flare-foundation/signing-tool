@@ -1,11 +1,11 @@
 import { Web3 } from "web3";
-import { ECDSASignature } from "../lib/ECDSASignature";
-import { IRewardDistributionData } from "../lib/interfaces";
-import { ZERO_BYTES32, networks } from "../configs/networks";
+import { ECDSASignature } from "../lib/ECDSASignature.js";
+import type { IRewardDistributionData } from "../lib/interfaces.js";
+import { ZERO_BYTES32, type networks } from "../configs/networks.js";
 import axios from "axios";
 import * as dotenv from "dotenv";
-import { initializeFlareSystemsManager } from "../lib/initialize";
-import { round } from "./utils";
+import { initializeFlareSystemsManager } from "../lib/initialize.js";
+import { parseGasPriceMultiplier } from "./utils.js";
 
 dotenv.config({ quiet: true });
 
@@ -35,11 +35,22 @@ export async function getRewardsData(rewardEpochId: number): Promise<[string, nu
   if (path === undefined) {
     throw new Error("NETWORK env variable is not set or is set to an unsupported network.");
   }
-  const response = await axios.get(path);
-  const data: IRewardDistributionData = response.data as IRewardDistributionData;
-  const rewardsHash: string = data.merkleRoot;
-  const noOfWeightBasedClaims: number = data.noOfWeightBasedClaims;
-  return [rewardsHash, noOfWeightBasedClaims];
+  const response = await axios.get(path, { timeout: 30_000 });
+  const data = response.data as IRewardDistributionData;
+  if (!data.merkleRoot || typeof data.merkleRoot !== "string" || !/^0x[0-9a-fA-F]{64}$/.test(data.merkleRoot)) {
+    throw new Error(`Invalid or missing merkleRoot in reward data: ${String(data.merkleRoot)}`);
+  }
+  if (
+    typeof data.noOfWeightBasedClaims !== "number" ||
+    !Number.isInteger(data.noOfWeightBasedClaims) ||
+    data.noOfWeightBasedClaims < 0
+  ) {
+    throw new Error(`Invalid or missing noOfWeightBasedClaims in reward data: ${String(data.noOfWeightBasedClaims)}`);
+  }
+  if (data.rewardEpochId !== rewardEpochId) {
+    throw new Error(`Reward epoch ID mismatch: requested ${rewardEpochId}, got ${String(data.rewardEpochId)}`);
+  }
+  return [data.merkleRoot, data.noOfWeightBasedClaims];
 }
 
 export async function signUptimeVote(
@@ -64,15 +75,15 @@ export async function signUptimeVote(
   const signature = ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
-  const gasPriceMultiplier = process.env.GAS_PRICE_MULTIPLIER ? round(Number(process.env.GAS_PRICE_MULTIPLIER), 2) : 10;
-  gasPrice = (gasPrice * BigInt(gasPriceMultiplier * 100)) / 100n;
+  const gasPriceMultiplier = parseGasPriceMultiplier(process.env.GAS_PRICE_MULTIPLIER);
+  gasPrice = (gasPrice * BigInt(Math.round(gasPriceMultiplier * 100))) / 100n;
   const tx = {
     from: wallet.address,
     to: flareSystemsManagerAddress,
     data: flareSystemsManager.methods.signUptimeVote!(rewardEpochId, fakeVoteHash, signature).encodeABI(),
     gas: "500000",
     gasPrice,
-    nonce: Number(nonce).toString(),
+    nonce: nonce.toString(),
   };
   const signed = await wallet.signTransaction(tx);
   try {
@@ -95,8 +106,8 @@ export async function signUptimeVote(
       console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${e.reason}`);
     } else {
       console.error(`Failed to send uptime vote for epoch ${rewardEpochId} from ${wallet.address}: ${String(e)}`);
-      console.dir(e);
     }
+    throw e;
   }
 }
 
@@ -133,8 +144,8 @@ export async function signRewards(
   const signature = ECDSASignature.signMessageHash(messageHash, signingPrivateKey);
   let gasPrice = await web3.eth.getGasPrice();
   const nonce = await web3.eth.getTransactionCount(wallet.address);
-  const gasPriceMultiplier = process.env.GAS_PRICE_MULTIPLIER ? round(Number(process.env.GAS_PRICE_MULTIPLIER), 2) : 10;
-  gasPrice = (gasPrice * BigInt(gasPriceMultiplier * 100)) / 100n;
+  const gasPriceMultiplier = parseGasPriceMultiplier(process.env.GAS_PRICE_MULTIPLIER);
+  gasPrice = (gasPrice * BigInt(Math.round(gasPriceMultiplier * 100))) / 100n;
   const tx = {
     from: wallet.address,
     to: flareSystemsManagerAddress,
@@ -146,7 +157,7 @@ export async function signRewards(
     ).encodeABI(),
     gas: "500000",
     gasPrice,
-    nonce: Number(nonce).toString(),
+    nonce: nonce.toString(),
   };
   const signed = await wallet.signTransaction(tx);
   try {
@@ -173,7 +184,7 @@ export async function signRewards(
       console.error(
         `Failed to send Merkle root for rewards for epoch ${rewardEpochId} from ${wallet.address}: ${String(e)}`
       );
-      console.dir(e);
     }
+    throw e;
   }
 }
