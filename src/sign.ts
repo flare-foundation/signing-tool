@@ -1,7 +1,7 @@
 import { Web3 } from "web3";
 import { ECDSASignature } from "../lib/ECDSASignature.js";
 import type { IRewardDistributionData } from "../lib/interfaces.js";
-import { ZERO_BYTES32, type networks } from "../configs/networks.js";
+import { ZERO_BYTES32, expectedChainId, type networks } from "../configs/networks.js";
 import axios from "axios";
 import * as dotenv from "dotenv";
 import { initializeFlareSystemsManager } from "../lib/initialize.js";
@@ -64,6 +64,14 @@ export async function signUptimeVote(
   }
   const signingPrivateKey = process.env.SIGNING_POLICY_PRIVATE_KEY;
   const senderPrivateKey = process.env.PRIVATE_KEY;
+
+  const expected = expectedChainId();
+  const rpcChainId = await web3.eth.getChainId();
+  if (rpcChainId !== expected) {
+    throw new Error(
+      `Chain ID mismatch: NETWORK=${process.env.NETWORK} expects ${expected}, RPC returned ${rpcChainId}. Check your RPC endpoint.`
+    );
+  }
 
   const flareSystemsManager = initializeFlareSystemsManager(web3, flareSystemsManagerAddress);
 
@@ -130,7 +138,13 @@ export async function signRewards(
   const wallet = web3.eth.accounts.privateKeyToAccount(senderPrivateKey);
   console.log(`Sending Merkle root for epoch ${rewardEpochId} from ${wallet.address}`);
 
-  const rewardManagerId = await web3.eth.getChainId();
+  const rewardManagerId = await web3.eth.getChainId(); // chain ID is used as reward manager ID
+  const expected = expectedChainId();
+  if (rewardManagerId !== expected) {
+    throw new Error(
+      `Chain ID mismatch: NETWORK=${process.env.NETWORK} expects ${expected}, RPC returned ${rewardManagerId}. Check your RPC endpoint.`
+    );
+  }
   const noOfWeightBasedClaimsAndId = [[rewardManagerId, noOfWeightBasedClaims]];
   const noOfWeightBasedClaimsEncoded = web3.eth.abi.encodeParameters(
     ["tuple(uint256,uint256)[]"],

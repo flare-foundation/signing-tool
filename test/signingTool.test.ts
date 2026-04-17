@@ -42,6 +42,8 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
     const connection = await hre.network.connect();
     ethers = connection.ethers;
     web3 = new Web3(connection.provider as any);
+    // Stub getChainId so the signing chain ID check accepts the Hardhat EDR network as "coston" (16)
+    web3.eth.getChainId = async () => 16n;
   });
 
   beforeEach(async () => {
@@ -99,6 +101,16 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
       await signUptimeVote(web3, mockAddress, 0, uptimeVoteHash);
       signedHash = await fsmMock.voterUptimeVoteHash(0, accounts[1]);
       expect(signedHash).to.eq(uptimeVoteHash);
+    });
+
+    it("Should reject signing when RPC chain ID does not match NETWORK", async () => {
+      const privateKeys = JSON.parse(fs.readFileSync("test/test-1020-accounts.json", "utf-8"));
+      process.env.PRIVATE_KEY = privateKeys[0].privateKey;
+      process.env.SIGNING_POLICY_PRIVATE_KEY = privateKeys[1].privateKey;
+      process.env.NETWORK = "flare"; // expects chain ID 14, but stubbed to return 16
+      const mockAddress = await fsmMock.getAddress();
+      const uptimeVoteHash = getUptimeVoteHash(web3);
+      await expect(signUptimeVote(web3, mockAddress, 0, uptimeVoteHash)).to.be.rejectedWith("Chain ID mismatch");
     });
 
     it("Should not sign uptime vote", async () => {

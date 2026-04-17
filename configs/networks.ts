@@ -28,6 +28,22 @@ const CONFIG_MAP: Record<networks, NetworkContractAddresses> = {
 
 export type networks = "coston2" | "coston" | "songbird" | "flare";
 
+export const CHAIN_IDS: Record<networks, bigint> = {
+  flare: 14n,
+  songbird: 19n,
+  coston: 16n,
+  coston2: 114n,
+};
+
+export function expectedChainId(): bigint {
+  const network = process.env.NETWORK as networks;
+  const chainId = CHAIN_IDS[network];
+  if (chainId === undefined) {
+    throw new Error(`Unsupported network: ${network}`);
+  }
+  return chainId;
+}
+
 const contracts = () => {
   const network = process.env.NETWORK as networks;
   const config = CONFIG_MAP[network];
