@@ -3,13 +3,17 @@ import { join, dirname } from "path";
 import { type ContractAbi, Web3 } from "web3";
 import { RPC } from "../configs/networks.js";
 
+const MAX_PARENT_WALK = 3;
+
 function findProjectRoot(startDir: string): string {
   let dir = startDir;
-  while (dir !== dirname(dir)) {
+  for (let i = 0; i <= MAX_PARENT_WALK; i++) {
     if (existsSync(join(dir, "abi", "FlareSystemsManager.json"))) return dir;
-    dir = dirname(dir);
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
   }
-  throw new Error("Could not find project root (looking for abi/FlareSystemsManager.json)");
+  throw new Error("Could not find project root (looking for abi/FlareSystemsManager.json within 3 parent directories)");
 }
 
 export function initializeFlareSystemsManager(web3: Web3, flareSystemsManagerAddress: string) {
