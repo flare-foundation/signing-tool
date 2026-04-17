@@ -1,7 +1,4 @@
 import type { NetworkContractAddresses } from "./contracts.js";
-import * as dotenv from "dotenv";
-
-dotenv.config({ quiet: true });
 
 const COSTON_CONFIG: NetworkContractAddresses = {
   FlareSystemsManager: { name: "FlareSystemsManager", address: "0x85680Dd93755Fe5d0789773fd0896cEE51F9e358" },

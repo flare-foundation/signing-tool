@@ -5,7 +5,7 @@ import { RPC } from "../configs/networks.js";
 
 const MAX_PARENT_WALK = 3;
 
-function findProjectRoot(startDir: string): string {
+export function findProjectRoot(startDir: string): string {
   let dir = startDir;
   for (let i = 0; i <= MAX_PARENT_WALK; i++) {
     if (existsSync(join(dir, "abi", "FlareSystemsManager.json"))) return dir;

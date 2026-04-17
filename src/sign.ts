@@ -3,11 +3,8 @@ import { ECDSASignature } from "../lib/ECDSASignature.js";
 import type { IRewardDistributionData } from "../lib/interfaces.js";
 import { ZERO_BYTES32, expectedChainId, type networks } from "../configs/networks.js";
 import axios from "axios";
-import * as dotenv from "dotenv";
 import { initializeFlareSystemsManager } from "../lib/initialize.js";
 import { parseGasPriceMultiplier } from "./utils.js";
-
-dotenv.config({ quiet: true });
 
 export function getRewardCalculationDataPath(rewardEpochId: number) {
   const network = process.env.NETWORK as networks;
