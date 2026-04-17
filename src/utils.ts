@@ -27,8 +27,8 @@ export function parseRewardEpochId(raw: unknown): number {
 export function parseOptionalEpochId(raw: unknown): number {
   if (raw === undefined) return NaN;
   const id = Number(raw);
-  if (!Number.isInteger(id) || id < 0) {
-    throw new Error("Invalid first reward epoch ID: must be a non-negative integer.");
+  if (!Number.isInteger(id) || id < 0 || id > MAX_UINT24) {
+    throw new Error(`Invalid first reward epoch ID: must be an integer between 0 and ${MAX_UINT24}.`);
   }
   return id;
 }

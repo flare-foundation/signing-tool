@@ -329,6 +329,14 @@ describe(`Signing tool test; ${getTestFile(import.meta.filename)}`, () => {
     it("Should reject float values", () => {
       expect(() => parseOptionalEpochId("5.5")).to.throw("Invalid first reward epoch ID");
     });
+
+    it("Should reject values above uint24 max", () => {
+      expect(() => parseOptionalEpochId(String(MAX_UINT24 + 1))).to.throw("Invalid first reward epoch ID");
+    });
+
+    it("Should accept uint24 max", () => {
+      expect(parseOptionalEpochId(String(MAX_UINT24))).to.eq(MAX_UINT24);
+    });
   });
 
   describe("Gas price multiplier validation", () => {
