@@ -1,7 +1,4 @@
 import type { NetworkContractAddresses } from "./contracts.js";
-import * as dotenv from "dotenv";
-
-dotenv.config({ quiet: true });
 
 const COSTON_CONFIG: NetworkContractAddresses = {
   FlareSystemsManager: { name: "FlareSystemsManager", address: "0x85680Dd93755Fe5d0789773fd0896cEE51F9e358" },
@@ -27,6 +24,22 @@ const CONFIG_MAP: Record<networks, NetworkContractAddresses> = {
 };
 
 export type networks = "coston2" | "coston" | "songbird" | "flare";
+
+export const CHAIN_IDS: Record<networks, bigint> = {
+  flare: 14n,
+  songbird: 19n,
+  coston: 16n,
+  coston2: 114n,
+};
+
+export function expectedChainId(): bigint {
+  const network = process.env.NETWORK as networks;
+  const chainId = CHAIN_IDS[network];
+  if (chainId === undefined) {
+    throw new Error(`Unsupported network: ${network}`);
+  }
+  return chainId;
+}
 
 const contracts = () => {
   const network = process.env.NETWORK as networks;

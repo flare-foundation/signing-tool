@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [[v1.2.1](https://github.com/flare-foundation/signing-tool/tags/v1.2.1)] - 2026-04-17
+
+### Fixed
+
+- Verify RPC chain ID matches `NETWORK` before signing (prevents signing with wrong chain ID if RPC is misconfigured)
+- Load `.env` from project root regardless of working directory (CLI now works from any cwd; blocks cwd-based `.env` substitution attack)
+- Bound `findProjectRoot` walk to 3 parent directories (prevents loading an ABI from an unrelated parent project)
+- Cap `parseOptionalEpochId` at `MAX_UINT24` (consistent with `parseRewardEpochId`; prevents malicious RPC from driving millions of status calls)
+
 ## [[v1.2.0](https://github.com/flare-foundation/signing-tool/tags/v1.2.0)] - 2026-04-16
 
 ### Changed
